@@ -1,2 +1,2 @@
-# RRT2
+# RRT
 Simple OCM based RRT implementation in C
