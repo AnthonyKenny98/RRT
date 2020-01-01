@@ -1,0 +1,11 @@
+Function Stack	CPU Time:Total	CPU Time:Effective Time:Total	CPU Time:Effective Time:Idle:Total	CPU Time:Effective Time:Poor:Total	CPU Time:Effective Time:Ok:Total	CPU Time:Effective Time:Ideal:Total	CPU Time:Effective Time:Over:Total	CPU Time:Spin Time:Total	CPU Time:Overhead Time:Total	CPU Time:Self	CPU Time:Effective Time:Self	CPU Time:Effective Time:Idle:Self	CPU Time:Effective Time:Poor:Self	CPU Time:Effective Time:Ok:Self	CPU Time:Effective Time:Ideal:Self	CPU Time:Effective Time:Over:Self	CPU Time:Spin Time:Self	CPU Time:Overhead Time:Self	Module	Function (Full)	Source File	Start Address
+Total	100.000000	100.000000				100.000000				0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	[Unknown]	[Unknown]	[Unknown]	[Unknown]
+ _start	100.000000	100.000000				100.000000				0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	rrt	_start	[Unknown]	0xa60
+  __libc_start_main	100.000000	100.000000				100.000000				0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	libc.so.6	__libc_start_main	libc-start.c	0x21ab0
+   main	100.000000	100.000000				100.000000				0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	rrt	main	rrt.c	0x12f8
+    rrt	100.000000	100.000000				100.000000				0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	rrt	rrt	rrt.c	0x110b
+     edgeCollisions	60.158205	60.158205				60.158205				0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	rrt	edgeCollisions	rrt.c	0x109a
+      LineIntersectsRect	60.158205	60.158205				60.158205				0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	rrt	LineIntersectsRect	rrt.c	0xf45
+       LineIntersectsLine	60.158205	60.158205				60.158205				0.012032	0.012032	0.0	0.0	0.0	0.012032	0.0	0.0	0.0	rrt	LineIntersectsLine	rrt.c	0xdc6
+     findNearestNode	39.841795	39.841795				39.841795				0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	0.0	rrt	findNearestNode	rrt.c	0xb6a
+      distance	39.841795	39.841795				39.841795				0.007968	0.007968	0.0	0.0	0.0	0.007968	0.0	0.0	0.0	rrt	distance	tools.c	0x19ff

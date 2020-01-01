@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2019-12-09 16:12:34
+* @Last Modified time: 2020-01-02 09:31:40
 */
 
 #include "rrt.h"
@@ -136,11 +136,6 @@ int main(int argc, char *argv[]) {
     total = finish - start;
     printf("Total Time (milliseconds): %ld\n", total);
 
-    char filename[50];
-    sprintf(filename, "results/%dnodes%dobs.%s", NUM_NODES, NUM_OBSTACLES, SUFFIX);
-    FILE *results = fopen(filename, "w");
-    fprintf(results, "RRT Time (milliseconds): %ld\n", finish - start);
-
 
     // GUI
     if (argc > 1 && !strcmp(argv[1], "-gui")) {
@@ -210,19 +205,16 @@ int main(int argc, char *argv[]) {
             
             fprintf(temp, "%lf %lf %lf %lf\n", graph->edges[a].p1.x, graph->edges[a].p1.y, graph->edges[a].p2.x, graph->edges[a].p2.y); //Write the data to a temporary file
 
-            // gnu_command = "plot \
-            //                     'path.temp' using 1:2:($3-$1):($4-$2) with vectors nohead lw 0.5 lc rgb \"red\" front title \'RRT\', \
-            //                     'start.temp' with point pointtype 3 ps 2 lc rgb \"blue\" title \'Start Node\'\n";
+            gnu_command = "plot \
+                                'path.temp' using 1:2:($3-$1):($4-$2) with vectors nohead lw 0.5 lc rgb \"red\" front title \'RRT\', \
+                                'start.temp' with point pointtype 3 ps 2 lc rgb \"blue\" title \'Start Node\'\n";
             
 
-            gnu_command = "plot \
-                                'path.temp' using 1:2:($3-$1):($4-$2) with vectors nohead lw 0.5 lc rgb \"white\" front title \'RRT\', \
-                                'start.temp' with point pointtype 3 ps 2 lc rgb \"white\" title \'Start Node\'\n";
 
             // UNCOMMENT THE BELOW LINES FOR REALTIME GRAPHING
             // fprintf(pipe, "%s\n", gnu_command);
 
-            // flush the pipe to update the plot
+            // // flush the pipe to update the plot
             // fflush(start);
             // fflush(temp);
             // fflush(pipe);
@@ -236,18 +228,17 @@ int main(int argc, char *argv[]) {
         fclose(start);
         fclose(temp);
         fclose(pipe);
-        fclose(results);
 
-        fclose(pipe2);
-
-        // Delete Files
-        // remove("path.temp");
-        // remove("start.temp");   
+        fclose(pipe2); 
     }
     
     // Free Memory
     free(graph);
     free(space);
+
+    // Delete Files
+    // remove("*.temp");
+    // remove("start.temp");  
 
     return 0;
 }
