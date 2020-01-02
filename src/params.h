@@ -3,5 +3,5 @@
 #define XDIM 1000
 #define YDIM 1000
 #define EPSILON 20
-#define NUM_NODES 1000
+#define NUM_NODES 25000
 #define RESOLUTION 2
