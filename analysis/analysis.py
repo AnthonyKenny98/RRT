@@ -4,25 +4,13 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-02 09:44:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-01-02 11:11:11
+# @Last Modified time: 2020-01-02 12:45:32
 
 import subprocess
 import os
 from pathlib import Path
-
-tests = [
-    {
-        'test': 0,
-        'name': 'test1',
-        'NUM_OBSTACLES': 10,
-        'OBSTACLE_SIZE': 10,
-        'XDIM': 200,
-        'YDIM': 200,
-        'EPSILON': 20,
-        'NUM_NODES': 200,
-        'RESOLUTION': 3
-    }
-]
+import csv
+import json
 
 
 def call(command):
@@ -34,26 +22,16 @@ def setup_test(test):
     """Edit params.h to setup values for test."""
     # Find file
     dir_path = os.path.dirname(os.path.realpath(__file__))
-    file_path = str(Path(dir_path).parent) + '/src/'
-    original_file_path = file_path + 'params.h'
-    new_file_path = file_path + 'temp_params.h'
+    file_path = str(Path(dir_path).parent) + '/src/params.h'
 
     # "define" keywords
     keywords = ['NUM_OBSTACLES', 'OBSTACLE_SIZE', 'XDIM', 'YDIM',
                 'EPSILON', 'NUM_NODES', 'RESOLUTION']
 
-    newfile = open(new_file_path, 'w')
-
-    with open(original_file_path, 'r') as original:
-        for line in original:
-            for keyword in keywords:
-                if line.startswith("#define") and keyword in line:
-                    line = "#define " + keyword + " " + str(test[keyword]) + "\n"
-            newfile.write(line)
-    newfile.close()
-
-    os.remove(original_file_path)
-    os.rename(new_file_path, original_file_path)
+    with open(file_path, 'w') as f:
+        for keyword in keywords:
+            line = "#define " + keyword + ' ' + str(test[keyword]) + '\n'
+            f.write(line)
 
 
 def collect_hotspots(test_name):
@@ -66,10 +44,21 @@ def collect_hotspots(test_name):
     result_dir = dir_path + '/results/' + test_name
 
     # Command to execute bash script
-    command = './collectHotspots.bash {} {}'.format(path.parent, result_dir)
+    command = './collectHotspots.bash {} {} > logs/{}.out 2>&1'.format(
+        path.parent, result_dir, test_name)
     # Execute command
     call(command)
 
+# Parse all Tests
+with open('tests.csv') as f:
+    reader = csv.DictReader(f)
+    # tests = [json.dumps(row) for row in reader]
+    rows = list(reader)
+    tests = json.loads(json.dumps(rows))
+
+# Run Tests
 for test in tests:
-    # collect_hotspots(test['name'])
-    setup_test(test)
+    if int(test['RUN']):
+        print("Running Test: {} - {}".format(test['TESTNUM'], test['NAME']))
+        setup_test(test)
+        collect_hotspots(test['NAME'])
