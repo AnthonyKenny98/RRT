@@ -1,0 +1,13 @@
+Function Stack,CPU Time:Total,CPU Time:Effective Time:Total,CPU Time:Effective Time:Idle:Total,CPU Time:Effective Time:Poor:Total,CPU Time:Effective Time:Ok:Total,CPU Time:Effective Time:Ideal:Total,CPU Time:Effective Time:Over:Total,CPU Time:Spin Time:Total,CPU Time:Overhead Time:Total,CPU Time:Self,CPU Time:Effective Time:Self,CPU Time:Effective Time:Idle:Self,CPU Time:Effective Time:Poor:Self,CPU Time:Effective Time:Ok:Self,CPU Time:Effective Time:Ideal:Self,CPU Time:Effective Time:Over:Self,CPU Time:Spin Time:Self,CPU Time:Overhead Time:Self,Module,Function (Full),Source File,Start Address
+Total,100.000000,100.000000,,,,100.000000,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,[Unknown],[Unknown],[Unknown],[Unknown]
+ _start,100.000000,100.000000,,,,100.000000,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,rrt,_start,[Unknown],0xa20
+  __libc_start_main,100.000000,100.000000,,,,100.000000,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,libc.so.6,__libc_start_main,libc-start.c,0x21ab0
+   main,100.000000,100.000000,,,,100.000000,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,rrt,main,rrt.c,0x12b8
+    rrt,100.000000,100.000000,,,,100.000000,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,rrt,rrt,rrt.c,0x10cb
+     findNearestNode,78.220891,78.220891,,,,78.220891,,,,0.188462,0.188462,0.0,0.0,0.0,0.188462,0.0,0.0,0.0,rrt,findNearestNode,rrt.c,0xb2a
+      distance,61.225513,61.225513,,,,61.225513,,,,0.603770,0.603770,0.0,0.0,0.0,0.603770,0.0,0.0,0.0,rrt,distance,tools.c,0x19b3
+       __sqrt,12.923874,12.923874,,,,12.923874,,,,0.161548,0.161548,0.0,0.0,0.0,0.161548,0.0,0.0,0.0,libm.so.6,__sqrt,w_sqrt_compat.c,0xeeb0
+      func@0x9f0,1.918448,1.918448,,,,1.918448,,,,0.023981,0.023981,0.0,0.0,0.0,0.023981,0.0,0.0,0.0,rrt,func@0x9f0,[Unknown],0x9f0
+     edgeCollisions,21.779109,21.779109,,,,21.779109,,,,0.007980,0.007980,0.0,0.0,0.0,0.007980,0.0,0.0,0.0,rrt,edgeCollisions,rrt.c,0x105a
+      LineIntersectsRect,21.140714,21.140714,,,,21.140714,,,,0.131963,0.131963,0.0,0.0,0.0,0.131963,0.0,0.0,0.0,rrt,LineIntersectsRect,rrt.c,0xf05
+       LineIntersectsLine,10.583694,10.583694,,,,10.583694,,,,0.132296,0.132296,0.0,0.0,0.0,0.132296,0.0,0.0,0.0,rrt,LineIntersectsLine,rrt.c,0xd86

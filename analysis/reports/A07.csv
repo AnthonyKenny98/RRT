@@ -1,0 +1,12 @@
+Function Stack,CPU Time:Total,CPU Time:Effective Time:Total,CPU Time:Effective Time:Idle:Total,CPU Time:Effective Time:Poor:Total,CPU Time:Effective Time:Ok:Total,CPU Time:Effective Time:Ideal:Total,CPU Time:Effective Time:Over:Total,CPU Time:Spin Time:Total,CPU Time:Overhead Time:Total,CPU Time:Self,CPU Time:Effective Time:Self,CPU Time:Effective Time:Idle:Self,CPU Time:Effective Time:Poor:Self,CPU Time:Effective Time:Ok:Self,CPU Time:Effective Time:Ideal:Self,CPU Time:Effective Time:Over:Self,CPU Time:Spin Time:Self,CPU Time:Overhead Time:Self,Module,Function (Full),Source File,Start Address
+Total,100.000000,100.000000,,,,100.000000,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,[Unknown],[Unknown],[Unknown],[Unknown]
+ _start,100.000000,100.000000,,,,100.000000,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,rrt,_start,[Unknown],0xa20
+  __libc_start_main,100.000000,100.000000,,,,100.000000,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,libc.so.6,__libc_start_main,libc-start.c,0x21ab0
+   main,100.000000,100.000000,,,,100.000000,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,rrt,main,rrt.c,0x12b5
+    rrt,100.000000,100.000000,,,,100.000000,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,rrt,rrt,rrt.c,0x10c8
+     findNearestNode,81.730447,81.730447,,,,81.730447,,,,0.024029,0.024029,0.0,0.0,0.0,0.024029,0.0,0.0,0.0,rrt,findNearestNode,rrt.c,0xb2a
+      distance,71.282857,71.282857,,,,71.282857,,,,0.115983,0.115983,0.0,0.0,0.0,0.115983,0.0,0.0,0.0,rrt,distance,tools.c,0x19ad
+       __sqrt,20.855303,20.855303,,,,20.855303,,,,0.047967,0.047967,0.0,0.0,0.0,0.047967,0.0,0.0,0.0,libm.so.6,__sqrt,w_sqrt_compat.c,0xeeb0
+     edgeCollisions,18.269553,18.269553,,,,18.269553,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,rrt,edgeCollisions,rrt.c,0x105a
+      LineIntersectsRect,18.269553,18.269553,,,,18.269553,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,rrt,LineIntersectsRect,rrt.c,0xf05
+       LineIntersectsLine,18.269553,18.269553,,,,18.269553,,,,0.042020,0.042020,0.0,0.0,0.0,0.042020,0.0,0.0,0.0,rrt,LineIntersectsLine,rrt.c,0xd86

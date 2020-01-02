@@ -4,16 +4,18 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-02 09:44:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-01-02 13:59:29
+# @Last Modified time: 2020-01-02 18:01:05
 
-import subprocess
-import os
-from pathlib import Path
 import csv
 import json
+from matplotlib import pyplot as plt
+import os
+from pathlib import Path
+import subprocess
 
-
+# Path in project of this file
 dir_path = os.path.dirname(os.path.realpath(__file__))
+subroutines = ['findNearestNode', 'edgeCollisions', '_point_collision']
 
 
 def call(command):
@@ -95,5 +97,58 @@ def run_reports():
         topdown_report(test)
 
 
+def compile_report_data():
+    """Compile Data from reports of all tests."""
+    tests = get_tests()
+    for test in tests:
+        test["results"] = {}
+
+        # Add results to tests
+        report_path = dir_path + '/reports/' + test['NAME'] + '.csv'
+        with open(report_path, 'r') as f:
+            reader = list(csv.DictReader(f))
+            for row in json.loads(json.dumps(reader)):
+                if row['Function Stack'].strip() in subroutines:
+                    test['results'][row["Function Stack"].strip()] = float(
+                        row["CPU Time:Total"]) / 100
+
+    # Organise data
+    obstacles = {}
+    for test in tests:
+        if int(test['NUM_OBSTACLES']) not in obstacles.keys():
+            obstacles[int(test['NUM_OBSTACLES'])] = {}
+        obstacles[int(test['NUM_OBSTACLES'])][
+            int(test['NUM_NODES'])] = test['results']
+    return obstacles
+
+
+def graph_reports(obstacles):
+    """Save graphs of data."""
+    for num_obstacles in obstacles.keys():
+        x = []
+        y = {s: [] for s in subroutines}
+        for key, value in obstacles[num_obstacles].items():
+            x.append(key)
+            for subroutine in subroutines:
+                y[subroutine].append(value.get(subroutine, 0))
+
+        plt.figure(figsize=(15, 10))
+        plt.suptitle("% of CPU Time per Function")
+        plt.title("{} Obstacles".format(num_obstacles))
+        plt.xlabel("Number of Nodes in Graph")
+        plt.ylabel("% of CPU Time")
+        plt.grid(color='gray', axis='y')
+        plt.xlim(min(x), max(x))
+
+        plt.stackplot(x, y.values(), colors=["#ea4335", "#4285f4", "#fbbc04"])
+        plt.savefig(dir_path + "/graphs/" + str(num_obstacles) + "obs")
+
+
 if __name__ == '__main__':
-    run_reports()
+    if input("Would you like to re-run tests? Answering no will simply compile"
+             "report data and make graphs. (y/n)") == 'y':
+        print("yes")
+        # run_tests()
+        # run_reports()
+    obstacles = compile_report_data()
+    graph_reports(obstacles)

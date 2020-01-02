@@ -1,0 +1,20 @@
+Function Stack,CPU Time:Total,CPU Time:Effective Time:Total,CPU Time:Effective Time:Idle:Total,CPU Time:Effective Time:Poor:Total,CPU Time:Effective Time:Ok:Total,CPU Time:Effective Time:Ideal:Total,CPU Time:Effective Time:Over:Total,CPU Time:Spin Time:Total,CPU Time:Overhead Time:Total,CPU Time:Self,CPU Time:Effective Time:Self,CPU Time:Effective Time:Idle:Self,CPU Time:Effective Time:Poor:Self,CPU Time:Effective Time:Ok:Self,CPU Time:Effective Time:Ideal:Self,CPU Time:Effective Time:Over:Self,CPU Time:Spin Time:Self,CPU Time:Overhead Time:Self,Module,Function (Full),Source File,Start Address
+Total,100.000000,100.000000,100.000000,,,100.000000,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,[Unknown],[Unknown],[Unknown],[Unknown]
+ _start,100.000000,100.000000,100.000000,,,100.000000,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,rrt,_start,[Unknown],0xa20
+  __libc_start_main,100.000000,100.000000,100.000000,,,100.000000,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,libc.so.6,__libc_start_main,libc-start.c,0x21ab0
+   main,100.000000,100.000000,100.000000,,,100.000000,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,rrt,main,rrt.c,0x12b8
+    rrt,100.000000,100.000000,100.000000,,,100.000000,,,,0.048207,0.048207,0.0,0.0,0.0,0.048207,0.0,0.0,0.0,rrt,rrt,rrt.c,0x10cb
+     findNearestNode,86.584616,86.584616,89.902998,,,86.456118,,,,1.372435,1.372435,0.051609,0.0,0.0,1.320826,0.0,0.0,0.0,rrt,findNearestNode,rrt.c,0xb2a
+      distance,68.333049,68.333049,72.533201,,,68.170406,,,,3.841152,3.841152,0.152088,0.0,0.0,3.689064,0.0,0.0,0.0,rrt,distance,tools.c,0x19b3
+       __sqrt,20.137922,20.137922,21.345465,,,20.091162,,,,1.604992,1.604992,0.063421,0.0,0.0,1.541571,0.0,0.0,0.0,libm.so.6,__sqrt,w_sqrt_compat.c,0xeeb0
+      func@0x9f0,1.031558,1.031558,0.0,,,1.071503,,,,0.082215,0.082215,0.0,0.0,0.0,0.082215,0.0,0.0,0.0,rrt,func@0x9f0,[Unknown],0x9f0
+     edgeCollisions,12.157461,12.157461,10.097002,,,12.237249,,,,0.090538,0.090538,0.0,0.0,0.0,0.090538,0.0,0.0,0.0,rrt,edgeCollisions,rrt.c,0x105a
+      LineIntersectsRect,11.021474,11.021474,10.097002,,,11.057272,,,,0.148616,0.148616,0.0,0.0,0.0,0.148616,0.0,0.0,0.0,rrt,LineIntersectsRect,rrt.c,0xf05
+       LineIntersectsLine,9.156782,9.156782,10.097002,,,9.120374,,,,0.729796,0.729796,0.030000,0.0,0.0,0.699796,0.0,0.0,0.0,rrt,LineIntersectsLine,rrt.c,0xd86
+     getRandomNode,0.305722,0.305722,0.0,,,0.317560,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,rrt,getRandomNode,tools.c,0x1a63
+      randomDouble,0.305722,0.305722,0.0,,,0.317560,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,rrt,randomDouble,tools.c,0x1984
+       rand,0.305722,0.305722,0.0,,,0.317560,,,,0.024366,0.024366,0.0,0.0,0.0,0.024366,0.0,0.0,0.0,libc.so.6,rand,rand.c,0x443a0
+     stepFromTo,0.198369,0.198369,0.0,,,0.206050,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,rrt,stepFromTo,rrt.c,0xc35
+      __atan2,0.100016,0.100016,0.0,,,0.103889,,,,0.007971,0.007971,0.0,0.0,0.0,0.007971,0.0,0.0,0.0,libm.so.6,__atan2,w_atan2_compat.c,0xe3a0
+      __sin_fma,0.098353,0.098353,0.0,,,0.102162,,,,0.007839,0.007839,0.0,0.0,0.0,0.007839,0.0,0.0,0.0,libm.so.6,__sin_fma,s_sin.c,0x8eed0
+     _point_collision,0.148971,0.148971,0.0,,,0.154740,,,,0.011873,0.011873,0.0,0.0,0.0,0.011873,0.0,0.0,0.0,rrt,_point_collision,ogm.c,0x230b

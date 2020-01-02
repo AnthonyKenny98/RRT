@@ -1,4 +1,4 @@
-#define NUM_OBSTACLES 50
+#define NUM_OBSTACLES 500
 #define OBSTACLE_SIZE 20
 #define XDIM 1000
 #define YDIM 1000

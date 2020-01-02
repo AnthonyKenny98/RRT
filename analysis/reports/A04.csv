@@ -1,0 +1,17 @@
+Function Stack,CPU Time:Total,CPU Time:Effective Time:Total,CPU Time:Effective Time:Idle:Total,CPU Time:Effective Time:Poor:Total,CPU Time:Effective Time:Ok:Total,CPU Time:Effective Time:Ideal:Total,CPU Time:Effective Time:Over:Total,CPU Time:Spin Time:Total,CPU Time:Overhead Time:Total,CPU Time:Self,CPU Time:Effective Time:Self,CPU Time:Effective Time:Idle:Self,CPU Time:Effective Time:Poor:Self,CPU Time:Effective Time:Ok:Self,CPU Time:Effective Time:Ideal:Self,CPU Time:Effective Time:Over:Self,CPU Time:Spin Time:Self,CPU Time:Overhead Time:Self,Module,Function (Full),Source File,Start Address
+Total,100.000000,100.000000,100.000000,,,100.000000,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,[Unknown],[Unknown],[Unknown],[Unknown]
+ _start,100.000000,100.000000,100.000000,,,100.000000,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,rrt,_start,[Unknown],0xa20
+  __libc_start_main,100.000000,100.000000,100.000000,,,100.000000,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,libc.so.6,__libc_start_main,libc-start.c,0x21ab0
+   main,100.000000,100.000000,100.000000,,,100.000000,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,rrt,main,rrt.c,0x12b5
+    rrt,100.000000,100.000000,100.000000,,,100.000000,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,rrt,rrt,rrt.c,0x10c8
+     findNearestNode,98.650857,98.650857,100.000000,,,98.648023,,,,0.897394,0.897394,0.010000,0.0,0.0,0.887394,0.0,0.0,0.0,rrt,findNearestNode,rrt.c,0xb2a
+      distance,77.072748,77.072748,0.0,,,77.234666,,,,2.608120,2.608120,0.0,0.0,0.0,2.608120,0.0,0.0,0.0,rrt,distance,tools.c,0x19ad
+       __sqrt,22.395189,22.395189,0.0,,,22.442238,,,,1.068251,1.068251,0.0,0.0,0.0,1.068251,0.0,0.0,0.0,libm.so.6,__sqrt,w_sqrt_compat.c,0xeeb0
+      func@0x9f0,2.764813,2.764813,0.0,,,2.770622,,,,0.131882,0.131882,0.0,0.0,0.0,0.131882,0.0,0.0,0.0,rrt,func@0x9f0,[Unknown],0x9f0
+     edgeCollisions,1.009780,1.009780,0.0,,,1.011901,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,rrt,edgeCollisions,rrt.c,0x105a
+      LineIntersectsRect,1.009780,1.009780,0.0,,,1.011901,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,rrt,LineIntersectsRect,rrt.c,0xf05
+       LineIntersectsLine,1.009780,1.009780,0.0,,,1.011901,,,,0.048167,0.048167,0.0,0.0,0.0,0.048167,0.0,0.0,0.0,rrt,LineIntersectsLine,rrt.c,0xd86
+     getRandomNode,0.170946,0.170946,0.0,,,0.171305,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,rrt,getRandomNode,tools.c,0x1a5d
+      randomDouble,0.170946,0.170946,0.0,,,0.171305,,,,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,rrt,randomDouble,tools.c,0x197e
+       rand,0.170946,0.170946,0.0,,,0.171305,,,,0.008154,0.008154,0.0,0.0,0.0,0.008154,0.0,0.0,0.0,libc.so.6,rand,rand.c,0x443a0
+     _point_collision,0.168418,0.168418,0.0,,,0.168771,,,,0.008034,0.008034,0.0,0.0,0.0,0.008034,0.0,0.0,0.0,rrt,_point_collision,ogm.c,0x22fc
