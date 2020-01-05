@@ -1,7 +1,7 @@
 #include "tools.h"
 
 typedef struct space {
-    bool ogm[XDIM/RESOLUTION][YDIM/RESOLUTION];
+    bool ogm[XDIM/RESOLUTION][YDIM/RESOLUTION][ZDIM/RESOLUTION];
 } space_t;
 
 void initObstacles(space_t *space);

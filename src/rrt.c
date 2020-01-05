@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-01-05 17:03:01
+* @Last Modified time: 2020-01-05 22:38:40
 */
 
 #include "rrt.h"
@@ -128,82 +128,82 @@ int main(int argc, char *argv[]) {
     initObstacles(space);
 
     // Init Graph
-    graph_t *graph = malloc(sizeof(graph_t));
-    graph->existingNodes = 0;
+    // graph_t *graph = malloc(sizeof(graph_t));
+    // graph->existingNodes = 0;
 
     // Init Start Node
-    point_t startNode;
+    // point_t startNode;
 
     // Init Start and End Nodes
-    do { startNode = getRandomNode(); } while (pointCollision(startNode, space));
+    // do { startNode = getRandomNode(); } while (pointCollision(startNode, space));
 
     // run RRT
-    clock_t start, finish, total;
-    start = clock() / (CLOCKS_PER_SEC / 1000);
-    rrt(graph, space, startNode);
-    finish = clock() / (CLOCKS_PER_SEC / 1000);
-    total = finish - start;
-    printf("Total Time (milliseconds): %ld\n", total);
+    // clock_t start, finish, total;
+    // start = clock() / (CLOCKS_PER_SEC / 1000);
+    // rrt(graph, space, startNode);
+    // finish = clock() / (CLOCKS_PER_SEC / 1000);
+    // total = finish - start;
+    // printf("Total Time (milliseconds): %ld\n", total);
 
     // Save data for python
 
 
     // GUI
-    if (argc > 1 && !strcmp(argv[1], "-gui")) {
-        FILE *pipe = popen("gnuplot -persist", "w");
-        FILE *temp = fopen("path.temp", "w");
-        FILE *start = fopen("start.temp", "w");
+    // if (argc > 1 && !strcmp(argv[1], "-gui")) {
+    //     FILE *pipe = popen("gnuplot -persist", "w");
+    //     FILE *temp = fopen("path.temp", "w");
+    //     FILE *start = fopen("start.temp", "w");
 
-        // Set axis ranges
-        fprintf(pipe,"set size square 1,1\n");
-        fprintf(pipe,"set key outside\n");
-        fprintf(pipe,"set xrange [0:%d]\n", XDIM);
-        fprintf(pipe,"set yrange [0:%d]\n", YDIM);
+    //     // Set axis ranges
+    //     fprintf(pipe,"set size square 1,1\n");
+    //     fprintf(pipe,"set key outside\n");
+    //     fprintf(pipe,"set xrange [0:%d]\n", XDIM);
+    //     fprintf(pipe,"set yrange [0:%d]\n", YDIM);
 
 
-        // Set Start and End Points
-        fprintf(start, "%lf %lf \n", startNode.x, startNode.y);
+    //     // Set Start and End Points
+    //     fprintf(start, "%lf %lf \n", startNode.x, startNode.y);
 
-        // Set Obstacles
-        int object = 1;
-        for (int i=0; i<XDIM/RESOLUTION; i++) {
-            for (int j=0; j<YDIM/RESOLUTION; j++) {
-                if (space->ogm[i][j]) {
-                    fprintf(pipe, 
-                            "set object %d rect from %d,%d to %d,%d fc lt 3 back\n", 
-                            object, 
-                            i*RESOLUTION, 
-                            j*RESOLUTION, 
-                            i*RESOLUTION+RESOLUTION,
-                            j*RESOLUTION+RESOLUTION);
-                    object++;
-                }
-            }
-        }
+    //     // Set Obstacles
+    //     int object = 1;
+    //     for (int i=0; i<XDIM/RESOLUTION; i++) {
+    //         for (int j=0; j<YDIM/RESOLUTION; j++) {
+    //             if (space->ogm[i][j]) {
+    //                 fprintf(pipe, 
+    //                         "set object %d rect from %d,%d to %d,%d fc lt 3 back\n", 
+    //                         object, 
+    //                         i*RESOLUTION, 
+    //                         j*RESOLUTION, 
+    //                         i*RESOLUTION+RESOLUTION,
+    //                         j*RESOLUTION+RESOLUTION);
+    //                 object++;
+    //             }
+    //         }
+    //     }
 
-        // Plot path
-        char *gnu_command;
-        fprintf(pipe,"set title \"Number of Nodes: %d\"\n", NUM_NODES);
-        for (int a=1; a < graph->existingNodes+1; a++)
-        {
-            fprintf(temp, "%lf %lf %lf %lf\n", 
-                graph->edges[a].p1.x, graph->edges[a].p1.y, 
-                graph->edges[a].p2.x, graph->edges[a].p2.y);
-        }
-        gnu_command = "plot \
-                            'path.temp' using 1:2:($3-$1):($4-$2) with vectors nohead lw 0.5 lc rgb \"red\" front title \'RRT\', \
-                            'start.temp' with point pointtype 3 ps 2 lc rgb \"blue\" title \'Start Node\'\n";
-        fprintf(pipe, "%s\n", gnu_command);
+    //     // Plot path
+    //     char *gnu_command;
+    //     fprintf(pipe,"set title \"Number of Nodes: %d\"\n", NUM_NODES);
+    //     for (int a=1; a < graph->existingNodes+1; a++)
+    //     {
+    //         fprintf(temp, "%lf %lf %lf %lf\n", 
+    //             graph->edges[a].p1.x, graph->edges[a].p1.y, 
+    //             graph->edges[a].p2.x, graph->edges[a].p2.y);
+    //     }
+    //     gnu_command = "plot \
+    //                         'path.temp' using 1:2:($3-$1):($4-$2) with vectors nohead lw 0.5 lc rgb \"red\" front title \'RRT\', \
+    //                         'start.temp' with point pointtype 3 ps 2 lc rgb \"blue\" title \'Start Node\'\n";
+    //     fprintf(pipe, "%s\n", gnu_command);
 
-        //  Close Files
-        fclose(start);
-        fclose(temp);
-        fclose(pipe); 
+    //     //  Close Files
+    //     fclose(start);
+    //     fclose(temp);
+    //     fclose(pipe); 
 
-        // Delete Temporary Files
-        remove("path.temp");
-        remove("start.temp");  
-    }
+    //     // Delete Temporary Files
+    //     remove("path.temp");
+    //     remove("start.temp");  
+    // }
     
     // Free Memory
     free(graph);

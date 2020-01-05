@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-11-01 15:45:21
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-01-05 16:56:02
+* @Last Modified time: 2020-01-05 22:21:57
 */
 
 #include "tools.h"
@@ -14,12 +14,16 @@ double randomDouble(int max) {
 
 // Euclidean Distance between two points
 double distance_squared(point_t p1, point_t p2) {
-    return ((p1.x-p2.x)*(p1.x-p2.x)) + ((p1.y-p2.y)*(p1.y-p2.y));
+    return ((p1.x-p2.x)*(p1.x-p2.x)) + 
+           ((p1.y-p2.y)*(p1.y-p2.y)) +
+           ((p1.z-p2.z)*(p1.z-p2.z));
 }
 
 // Returns a random node in the state space
 point_t getRandomNode() {
-    return (point_t) {.x = randomDouble(XDIM), .y = randomDouble(YDIM)};
+    return (point_t) {.x = randomDouble(XDIM),
+                      .y = randomDouble(YDIM),
+                      .y = randomDouble(ZDIM)};
 }
 
 double perpendicularDistance(point_t node, edge_t line) {

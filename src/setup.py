@@ -3,7 +3,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-05 11:05:27
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-01-05 17:13:45
+# @Last Modified time: 2020-01-05 23:06:56
 
 import csv
 import os
@@ -21,7 +21,8 @@ def rrt_config():
 
     # Check X and Y Dimension of config are integer divisible by resolution
     if (params['XDIM'] % params['RESOLUTION'] != 0) or \
-            (params['YDIM'] % params['RESOLUTION'] != 0):
+            (params['YDIM'] % params['RESOLUTION'] != 0) or \
+            (params['ZDIM'] % params['RESOLUTION'] != 0):
         print(colored("WARNING: Resolution Dimension mismatch", 'red'))
 
     return params
@@ -61,10 +62,12 @@ def resize_template(params, template):
     # Get dimensions of template
     xlen = len(list(reader)[0])
     ylen = len(list(reader))
+    zlen = ylen  # fix this. Not sure how to accom this yet
 
     # Take Resolution into account
     XDIM = params['XDIM'] / params['RESOLUTION']
     YDIM = params['YDIM'] / params['RESOLUTION']
+    ZDIM = params['ZDIM'] / params['RESOLUTION']
 
     # Check dimensions are compatible
     if XDIM % xlen != 0:
@@ -77,14 +80,21 @@ def resize_template(params, template):
     # Resize and write
     x_multiplier = int(XDIM / xlen)
     y_multiplier = int(YDIM / ylen)
+    z_multiplier = int(ZDIM / zlen)
     with open(template, 'r') as f:
         reader = csv.reader(f)
         with open('cache/ogm.csv', 'w') as ogm:
                 writer = csv.writer(ogm, delimiter=',')
                 for row in reader:
                     for y in range(y_multiplier):
+                        new_row = []
+                        for col in row:
+                            zs = col.split(';')
+                            zs = list(map(lambda z: str(int(z) * z_multiplier), zs))
+                            new_col = ';'.join(zs)
+                            new_row.append(new_col)
                         writer.writerow(j for i in [[x] * x_multiplier
-                                        for x in row] for j in i)
+                                        for x in new_row] for j in i)
 
 if __name__ == '__main__':
     params = rrt_config()
