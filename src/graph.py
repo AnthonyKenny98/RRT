@@ -4,7 +4,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-05 17:04:03
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-01-05 18:37:09
+# @Last Modified time: 2020-01-05 20:37:07
 
 
 import matplotlib.pyplot as plt
@@ -41,33 +41,31 @@ ogm = read_csv()
 ogm = np.kron(ogm, np.ones((params['RESOLUTION'], params['RESOLUTION'])))
 
 # New figure
-plt.figure()
+fig = plt.figure()
+ax = fig.add_axes([0, 0, params['XDIM'], params['YDIM']])
 
 # Define Color Map
 cmap = mcol.ListedColormap(['white', 'red'])
 
 # Build Grid Map
-im = plt.imshow(ogm, cmap=cmap, extent=(0, params['XDIM'], params['YDIM'], 0))
-ax = plt.gca()
+im = plt.imshow(ogm, cmap=cmap, extent=(0, params['XDIM'], params['YDIM'], 0),
+                origin='lower')
 
-# ax.set_xlim(0, params['XDIM'])
-# ax.set_ylim(0, params['YDIM'])
-
-# # Set major ticks for grid
+# Set major ticks
 ax.set_xticks(np.arange(0, params['XDIM'], params['RESOLUTION']))
 ax.set_yticks(np.arange(0, params['YDIM'], params['RESOLUTION']))
-# # Disable major tick labels
+# Disable major tick labels
 ax.set_xticklabels([])
 ax.set_yticklabels([])
-# # Set grid based on major ticks
+# Set grid based on major ticks
 ax.grid(color='grey', linestyle='-', linewidth=0.5)
 
 # Set minor ticks for scale
-ax.set_xticks(np.arange(0, params['XDIM'] + 1, 10), minor=True)
-ax.set_yticks(np.arange(0, params['YDIM'] + 1, 10), minor=True)
+ax.set_xticks(np.arange(0, params['XDIM'], 10), minor=True)
+ax.set_yticks(np.arange(0, params['YDIM'], 10), minor=True)
 
 # Labels for minor ticks
-ax.set_xticklabels(np.arange(0, params['XDIM'] + 1, 10), minor=True)
-ax.set_yticklabels(np.arange(0, params['YDIM'] + 1, 10), minor=True)
+ax.set_xticklabels(np.arange(0, params['XDIM'], 10), minor=True)
+ax.set_yticklabels(np.arange(0, params['YDIM'], 10), minor=True)
 
 plt.show()
