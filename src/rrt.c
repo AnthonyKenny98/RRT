@@ -2,16 +2,16 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-01-05 12:35:58
+* @Last Modified time: 2020-01-05 12:53:12
 */
 
 #include "rrt.h"
 
-// Moves an incremental distance from nearestNode to (randomPoint if distance is < Epsilon) or new point
-point_t findNearestNode(point_t randomPoint, graph_t *graph) {
+// Finds Node in current Graph nearest to New Point
+point_t findNearestNode(point_t newPoint, graph_t *graph) {
     point_t nearestNode = graph->nodes[0];
     for (int i=0; i<graph->existingNodes; i++) {
-        if (distance_squared(graph->nodes[i], randomPoint) < distance_squared(nearestNode, randomPoint)) {
+        if (distance_squared(graph->nodes[i], newPoint) < distance_squared(nearestNode, newPoint)) {
             nearestNode = graph->nodes[i];
         }
     }
@@ -21,7 +21,8 @@ point_t findNearestNode(point_t randomPoint, graph_t *graph) {
 
 // Steps from point 1 to point 2 or new point
 point_t stepFromTo(point_t p1, point_t p2) {
-    if (distance_squared(p1, p2) < EPSILON) {
+    // Epsilon * Epsilon since distance_squared
+    if (distance_squared(p1, p2) < (EPSILON * EPSILON)) {
         return p2;
     }
     else {
@@ -55,24 +56,21 @@ bool LineIntersectsLine(edge_t e1, edge_t e2) {
     return true;
 }
 
-bool LineIntersectsRect(edge_t edge, obstacle_t r) {
-    return LineIntersectsLine(edge, (edge_t) {.p1 = (point_t) {.x=r.v1.x, .y=r.v1.y}, .p2 = (point_t) {.x=r.v2.x, .y=r.v2.y}}) ||
-           LineIntersectsLine(edge, (edge_t) {.p1 = (point_t) {.x=r.v2.x, .y=r.v2.y}, .p2 = (point_t) {.x=r.v3.x, .y=r.v3.y}}) ||
-           LineIntersectsLine(edge, (edge_t) {.p1 = (point_t) {.x=r.v3.x, .y=r.v3.y}, .p2 = (point_t) {.x=r.v4.x, .y=r.v4.y}}) ||
-           LineIntersectsLine(edge, (edge_t) {.p1 = (point_t) {.x=r.v4.x, .y=r.v4.y}, .p2 = (point_t) {.x=r.v1.x, .y=r.v1.y}});
-}
-
 bool edgeCollisions(edge_t edge, space_t *space) {
     for (int i=0; i<XDIM/RESOLUTION; i++) {
         for (int j=0; j<YDIM/RESOLUTION; j++) {
             if (space->ogm[i][j]) {
-                obstacle_t temp_obs = {
-                    .v1 = (point_t) {.x = i*RESOLUTION, .y = j*RESOLUTION}, 
-                    .v2 = (point_t) {.x = i*RESOLUTION, .y = j*RESOLUTION + RESOLUTION},
-                    .v3 = (point_t) {.x = i*RESOLUTION + RESOLUTION, .y = j*RESOLUTION + RESOLUTION},
-                    .v4 = (point_t) {.x = i*RESOLUTION + RESOLUTION, .y = j*RESOLUTION}
-                };
-                if (LineIntersectsRect(edge, temp_obs)) {
+
+                // Set up edges of grid
+                point_t v1 = (point_t) {.x = i*RESOLUTION, .y = j*RESOLUTION};
+                point_t v2 = (point_t) {.x = i*RESOLUTION, .y = j*RESOLUTION + RESOLUTION};
+                point_t v3 = (point_t) {.x = i*RESOLUTION + RESOLUTION, .y = j*RESOLUTION + RESOLUTION};
+                point_t v4 = (point_t) {.x = i*RESOLUTION + RESOLUTION, .y = j*RESOLUTION};
+                
+                if (LineIntersectsLine(edge, (edge_t) {.p1 = v1, .p2 = v2}) ||
+                    LineIntersectsLine(edge, (edge_t) {.p1 = v2, .p2 = v3}) ||
+                    LineIntersectsLine(edge, (edge_t) {.p1 = v3, .p2 = v4}) ||
+                    LineIntersectsLine(edge, (edge_t) {.p1 = v4, .p2 = v1})) {
                     return true;
                 }
             }
@@ -133,7 +131,7 @@ int main(int argc, char *argv[]) {
     graph_t *graph = malloc(sizeof(graph_t));
     graph->existingNodes = 0;
 
-    // Allocate Memory for Start Node
+    // Init Start Node
     point_t startNode;
 
     // Init Start and End Nodes
@@ -150,21 +148,15 @@ int main(int argc, char *argv[]) {
 
     // GUI
     if (argc > 1 && !strcmp(argv[1], "-gui")) {
-        // FILE *pipe = popen("gnuplot -persist", "w");
-        FILE *pipe2 = popen("gnuplot -persist", "w");
+        FILE *pipe = popen("gnuplot -persist", "w");
         FILE *temp = fopen("path.temp", "w");
         FILE *start = fopen("start.temp", "w");
 
-        // set axis ranges
-        // fprintf(pipe,"set size square 1,1\n");
-        // fprintf(pipe,"set key outside\n");
-        // fprintf(pipe,"set xrange [0:%d]\n", XDIM);
-        // fprintf(pipe,"set yrange [0:%d]\n", YDIM);
-
-        fprintf(pipe2,"set size square 1,1\n");
-        fprintf(pipe2,"set key outside\n");
-        fprintf(pipe2,"set xrange [0:%d]\n", XDIM);
-        fprintf(pipe2,"set yrange [0:%d]\n", YDIM);
+        // Set axis ranges
+        fprintf(pipe,"set size square 1,1\n");
+        fprintf(pipe,"set key outside\n");
+        fprintf(pipe,"set xrange [0:%d]\n", XDIM);
+        fprintf(pipe,"set yrange [0:%d]\n", YDIM);
 
 
         // Set Start and End Points
@@ -172,34 +164,10 @@ int main(int argc, char *argv[]) {
 
         // Set Obstacles
         int object = 1;
-        // for (int i=0; i<XDIM/RESOLUTION; i++) {
-        //     for (int j=0; j<YDIM/RESOLUTION; j++) {
-        //         if (space->ogm[i][j]) {
-        //             fprintf(pipe, 
-        //                     "set object %d rect from %lf,%lf to %lf,%lf fc lt 3 back\n", 
-        //                     object, 
-        //                     (double) i*RESOLUTION, 
-        //                     (double) j*RESOLUTION, 
-        //                     (double) i*RESOLUTION+RESOLUTION, 
-        //                     (double) j*RESOLUTION+RESOLUTION);
-        //             object++;
-        //         }
-        //         else {
-        //             fprintf(pipe, 
-        //                     "set object %d rect from %lf,%lf to %lf,%lf fs empty border lc rgb \"black\" back\n", 
-        //                     object, 
-        //                     (double) i*RESOLUTION, 
-        //                     (double) j*RESOLUTION, 
-        //                     (double) i*RESOLUTION+RESOLUTION, 
-        //                     (double) j*RESOLUTION+RESOLUTION);
-        //             object++;
-        //         }
-        //     }
-        // }
         for (int i=0; i<XDIM/RESOLUTION; i++) {
             for (int j=0; j<YDIM/RESOLUTION; j++) {
                 if (space->ogm[i][j]) {
-                    fprintf(pipe2, 
+                    fprintf(pipe, 
                             "set object %d rect from %d,%d to %d,%d fc lt 3 back\n", 
                             object, 
                             i*RESOLUTION, 
@@ -211,48 +179,33 @@ int main(int argc, char *argv[]) {
             }
         }
 
+        // Plot path
         char *gnu_command;
-        for (int a=1; a < graph->existingNodes+1; a++) // a plots
+        fprintf(pipe,"set title \"Number of Nodes: %d\"\n", NUM_NODES);
+        for (int a=1; a < graph->existingNodes+1; a++)
         {
-
-            // fprintf(pipe,"set title \"Number of Nodes: %d\"\n", a+1);
-            fprintf(pipe2,"set title \"Number of Nodes: %d\"\n", a+1);
-            
-            fprintf(temp, "%lf %lf %lf %lf\n", graph->edges[a].p1.x, graph->edges[a].p1.y, graph->edges[a].p2.x, graph->edges[a].p2.y); //Write the data to a temporary file
-
-            gnu_command = "plot \
-                                'path.temp' using 1:2:($3-$1):($4-$2) with vectors nohead lw 0.5 lc rgb \"red\" front title \'RRT\', \
-                                'start.temp' with point pointtype 3 ps 2 lc rgb \"blue\" title \'Start Node\'\n";
-            
-
-
-            // UNCOMMENT THE BELOW LINES FOR REALTIME GRAPHING
-            // fprintf(pipe, "%s\n", gnu_command);
-
-            // // flush the pipe to update the plot
-            // fflush(start);
-            // fflush(temp);
-            // fflush(pipe);
-            // delay(STEP_DELAY);
+            fprintf(temp, "%lf %lf %lf %lf\n", 
+                graph->edges[a].p1.x, graph->edges[a].p1.y, 
+                graph->edges[a].p2.x, graph->edges[a].p2.y);
         }
-        // UNCOMMENT THE BELOW LINE FOR GRAPHING AT END ONLY
-        // fprintf(pipe, "%s\n", gnu_command);
-        fprintf(pipe2, "%s\n", gnu_command);
+        gnu_command = "plot \
+                            'path.temp' using 1:2:($3-$1):($4-$2) with vectors nohead lw 0.5 lc rgb \"red\" front title \'RRT\', \
+                            'start.temp' with point pointtype 3 ps 2 lc rgb \"blue\" title \'Start Node\'\n";
+        fprintf(pipe, "%s\n", gnu_command);
 
         //  Close Files
         fclose(start);
         fclose(temp);
-        // fclose(pipe);
-        fclose(pipe2); 
+        fclose(pipe); 
+
+        // Delete Temporary Files
+        remove("path.temp");
+        remove("start.temp");  
     }
     
     // Free Memory
     free(graph);
     free(space);
-
-    // Delete Files
-    // remove("*.temp");
-    // remove("start.temp");  
 
     return 0;
 }
