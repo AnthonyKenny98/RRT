@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-01-05 11:27:13
+* @Last Modified time: 2020-01-05 12:35:58
 */
 
 #include "rrt.h"
@@ -63,9 +63,20 @@ bool LineIntersectsRect(edge_t edge, obstacle_t r) {
 }
 
 bool edgeCollisions(edge_t edge, space_t *space) {
-    for (int i=0; i<NUM_OBSTACLES; i++) {
-        if (LineIntersectsRect(edge, space->obstacles[i]))
-            return true;
+    for (int i=0; i<XDIM/RESOLUTION; i++) {
+        for (int j=0; j<YDIM/RESOLUTION; j++) {
+            if (space->ogm[i][j]) {
+                obstacle_t temp_obs = {
+                    .v1 = (point_t) {.x = i*RESOLUTION, .y = j*RESOLUTION}, 
+                    .v2 = (point_t) {.x = i*RESOLUTION, .y = j*RESOLUTION + RESOLUTION},
+                    .v3 = (point_t) {.x = i*RESOLUTION + RESOLUTION, .y = j*RESOLUTION + RESOLUTION},
+                    .v4 = (point_t) {.x = i*RESOLUTION + RESOLUTION, .y = j*RESOLUTION}
+                };
+                if (LineIntersectsRect(edge, temp_obs)) {
+                    return true;
+                }
+            }
+        }
     }
     return false;
 }
