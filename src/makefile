@@ -8,7 +8,7 @@ rrt: rrt.o tools.o naive.o ogm.o
 rrt.o: rrt.c tools.h naive.h
 # Naive Implementation
 # 	gcc -c rrt.c -g -lm -DNAIVE
-# Not Naive
+# Occupancy Grid Map implementation
 	gcc -c rrt.c -g -lm
 
 tools.o: tools.c tools.h

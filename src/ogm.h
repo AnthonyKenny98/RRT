@@ -12,3 +12,5 @@ void _initObstacles(_space_t *space);
 
 bool _point_collision(point_t node, _space_t *space);
 #define point_collision _point_collision
+
+int grid_lookup(double val);

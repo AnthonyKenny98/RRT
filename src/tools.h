@@ -29,7 +29,7 @@ void delay(int milliseconds);
 double randomDouble(int max);
 
 // Euclidean Distance between two points
-double distance(point_t p1, point_t p2);
+double distance_squared(point_t p1, point_t p2);
 
 // Returns a random node in the state space
 point_t getRandomNode();

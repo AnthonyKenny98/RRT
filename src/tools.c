@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-11-01 15:45:21
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2019-12-08 09:10:02
+* @Last Modified time: 2020-01-05 09:16:33
 */
 
 #include "tools.h"
@@ -25,8 +25,8 @@ double randomDouble(int max) {
 }
 
 // Euclidean Distance between two points
-double distance(point_t p1, point_t p2) {
-    return sqrt(((p1.x-p2.x)*(p1.x-p2.x)) + ((p1.y-p2.y)*(p1.y-p2.y)));
+double distance_squared(point_t p1, point_t p2) {
+    return ((p1.x-p2.x)*(p1.x-p2.x)) + ((p1.y-p2.y)*(p1.y-p2.y));
     // return sqrt(pow((p1.x-p2.x),2) + pow((p1.y-p2.y),2));
 }
 

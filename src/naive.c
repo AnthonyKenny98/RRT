@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-12-07 16:36:41
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2019-12-08 07:53:03
+* @Last Modified time: 2020-01-05 09:17:48
 */
 
 #include "naive.h"
@@ -21,10 +21,10 @@ void initObstacles(space_t *space) {
 }
 
 bool pointInRectangle(point_t node, obstacle_t obs) {
-    return ((perpendicularDistance(node, (edge_t) {.p1=obs.v1, .p2=obs.v2}) < distance(obs.v1, obs.v4)) && 
-        (perpendicularDistance(node, (edge_t) {.p1=obs.v2, .p2=obs.v3}) < distance(obs.v2, obs.v1))) ||
-        ((perpendicularDistance(node, (edge_t) {.p1=obs.v3, .p2=obs.v4}) < distance(obs.v3, obs.v2)) &&
-        (perpendicularDistance(node, (edge_t) {.p1=obs.v4, .p2=obs.v1}) < distance(obs.v4, obs.v3)));
+    return ((perpendicularDistance(node, (edge_t) {.p1=obs.v1, .p2=obs.v2}) < sqrt(distance_squared(obs.v1, obs.v4))) && 
+        (perpendicularDistance(node, (edge_t) {.p1=obs.v2, .p2=obs.v3}) < sqrt(distance_squared(obs.v2, obs.v1)))) ||
+        ((perpendicularDistance(node, (edge_t) {.p1=obs.v3, .p2=obs.v4}) < sqrt(distance_squared(obs.v3, obs.v2))) &&
+        (perpendicularDistance(node, (edge_t) {.p1=obs.v4, .p2=obs.v1}) < sqrt(distance_squared(obs.v4, obs.v3))));
 }
 
 // Returns true if point collides with obstacle

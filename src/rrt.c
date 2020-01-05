@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-01-02 09:31:40
+* @Last Modified time: 2020-01-05 11:27:13
 */
 
 #include "rrt.h"
@@ -11,7 +11,7 @@
 point_t findNearestNode(point_t randomPoint, graph_t *graph) {
     point_t nearestNode = graph->nodes[0];
     for (int i=0; i<graph->existingNodes; i++) {
-        if (distance(graph->nodes[i], randomPoint) < distance(nearestNode, randomPoint)) {
+        if (distance_squared(graph->nodes[i], randomPoint) < distance_squared(nearestNode, randomPoint)) {
             nearestNode = graph->nodes[i];
         }
     }
@@ -21,7 +21,7 @@ point_t findNearestNode(point_t randomPoint, graph_t *graph) {
 
 // Steps from point 1 to point 2 or new point
 point_t stepFromTo(point_t p1, point_t p2) {
-    if (distance(p1, p2) < EPSILON) {
+    if (distance_squared(p1, p2) < EPSILON) {
         return p2;
     }
     else {
@@ -139,16 +139,16 @@ int main(int argc, char *argv[]) {
 
     // GUI
     if (argc > 1 && !strcmp(argv[1], "-gui")) {
-        FILE *pipe = popen("gnuplot -persist", "w");
+        // FILE *pipe = popen("gnuplot -persist", "w");
         FILE *pipe2 = popen("gnuplot -persist", "w");
         FILE *temp = fopen("path.temp", "w");
         FILE *start = fopen("start.temp", "w");
 
         // set axis ranges
-        fprintf(pipe,"set size square 1,1\n");
-        fprintf(pipe,"set key outside\n");
-        fprintf(pipe,"set xrange [0:%d]\n", XDIM);
-        fprintf(pipe,"set yrange [0:%d]\n", YDIM);
+        // fprintf(pipe,"set size square 1,1\n");
+        // fprintf(pipe,"set key outside\n");
+        // fprintf(pipe,"set xrange [0:%d]\n", XDIM);
+        // fprintf(pipe,"set yrange [0:%d]\n", YDIM);
 
         fprintf(pipe2,"set size square 1,1\n");
         fprintf(pipe2,"set key outside\n");
@@ -161,46 +161,50 @@ int main(int argc, char *argv[]) {
 
         // Set Obstacles
         int object = 1;
+        // for (int i=0; i<XDIM/RESOLUTION; i++) {
+        //     for (int j=0; j<YDIM/RESOLUTION; j++) {
+        //         if (space->ogm[i][j]) {
+        //             fprintf(pipe, 
+        //                     "set object %d rect from %lf,%lf to %lf,%lf fc lt 3 back\n", 
+        //                     object, 
+        //                     (double) i*RESOLUTION, 
+        //                     (double) j*RESOLUTION, 
+        //                     (double) i*RESOLUTION+RESOLUTION, 
+        //                     (double) j*RESOLUTION+RESOLUTION);
+        //             object++;
+        //         }
+        //         else {
+        //             fprintf(pipe, 
+        //                     "set object %d rect from %lf,%lf to %lf,%lf fs empty border lc rgb \"black\" back\n", 
+        //                     object, 
+        //                     (double) i*RESOLUTION, 
+        //                     (double) j*RESOLUTION, 
+        //                     (double) i*RESOLUTION+RESOLUTION, 
+        //                     (double) j*RESOLUTION+RESOLUTION);
+        //             object++;
+        //         }
+        //     }
+        // }
         for (int i=0; i<XDIM/RESOLUTION; i++) {
             for (int j=0; j<YDIM/RESOLUTION; j++) {
                 if (space->ogm[i][j]) {
-                    fprintf(pipe, 
-                            "set object %d rect from %lf,%lf to %lf,%lf fc lt 3 back\n", 
+                    fprintf(pipe2, 
+                            "set object %d rect from %d,%d to %d,%d fc lt 3 back\n", 
                             object, 
-                            (double) i*RESOLUTION, 
-                            (double) j*RESOLUTION, 
-                            (double) i*RESOLUTION+RESOLUTION, 
-                            (double) j*RESOLUTION+RESOLUTION);
-                    object++;
-                }
-                else {
-                    fprintf(pipe, 
-                            "set object %d rect from %lf,%lf to %lf,%lf fs empty border lc rgb \"black\" back\n", 
-                            object, 
-                            (double) i*RESOLUTION, 
-                            (double) j*RESOLUTION, 
-                            (double) i*RESOLUTION+RESOLUTION, 
-                            (double) j*RESOLUTION+RESOLUTION);
+                            i*RESOLUTION, 
+                            j*RESOLUTION, 
+                            i*RESOLUTION+RESOLUTION,
+                            j*RESOLUTION+RESOLUTION);
                     object++;
                 }
             }
-        }
-        for (int i=0; i<NUM_OBSTACLES; i++) {
-            fprintf(pipe2, 
-                    "set object %d rect from %lf,%lf to %lf,%lf fc lt 3 back\n", 
-                    object, 
-                    space->obstacles[i].v1.x, 
-                    space->obstacles[i].v1.y, 
-                    space->obstacles[i].v3.x, 
-                    space->obstacles[i].v3.y);
-            object++;
         }
 
         char *gnu_command;
         for (int a=1; a < graph->existingNodes+1; a++) // a plots
         {
 
-            fprintf(pipe,"set title \"Number of Nodes: %d\"\n", a+1);
+            // fprintf(pipe,"set title \"Number of Nodes: %d\"\n", a+1);
             fprintf(pipe2,"set title \"Number of Nodes: %d\"\n", a+1);
             
             fprintf(temp, "%lf %lf %lf %lf\n", graph->edges[a].p1.x, graph->edges[a].p1.y, graph->edges[a].p2.x, graph->edges[a].p2.y); //Write the data to a temporary file
@@ -221,14 +225,13 @@ int main(int argc, char *argv[]) {
             // delay(STEP_DELAY);
         }
         // UNCOMMENT THE BELOW LINE FOR GRAPHING AT END ONLY
-        fprintf(pipe, "%s\n", gnu_command);
+        // fprintf(pipe, "%s\n", gnu_command);
         fprintf(pipe2, "%s\n", gnu_command);
 
         //  Close Files
         fclose(start);
         fclose(temp);
-        fclose(pipe);
-
+        // fclose(pipe);
         fclose(pipe2); 
     }
     
