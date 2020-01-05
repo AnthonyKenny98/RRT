@@ -2,14 +2,7 @@
 #define RRT
 
 #define STEP_DELAY 2
-
-#ifdef NAIVE
-    #include "naive.h"
-    #define SUFFIX "naive"
-#else
-    #include "ogm.h"
-    #define SUFFIX "ogm"
-#endif
+#include "ogm.h"
 
 typedef struct graph {
     point_t nodes[NUM_NODES];

@@ -1,16 +1,20 @@
-#include "naive.h"
+#include "tools.h"
 
-typedef struct _space {
+typedef struct obstacle {
+    point_t v1;
+    point_t v2;
+    point_t v3;
+    point_t v4;
+} obstacle_t;
+
+typedef struct space {
     obstacle_t obstacles[NUM_OBSTACLES];
     bool ogm[XDIM/RESOLUTION][YDIM/RESOLUTION];
-} _space_t;
-#define space_t _space_t
+} space_t;
 
 // Creates NUM_OBSTACLES rectangular obstacles
-void _initObstacles(_space_t *space);
-#define initObstacles _initObstacles
+void initObstacles(space_t *space);
 
-bool _point_collision(point_t node, _space_t *space);
-#define point_collision _point_collision
+bool point_collision(point_t node, space_t *space);
 
 int grid_lookup(double val);

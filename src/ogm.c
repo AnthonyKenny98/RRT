@@ -2,12 +2,12 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-12-08 08:10:44
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-01-05 12:09:01
+* @Last Modified time: 2020-01-05 16:49:45
 */
 
 #include "ogm.h"
 
-void _initObstacles(space_t *space) {
+void initObstacles(space_t *space) {
     // Open File
     FILE *f = fopen("ogm.csv","r");
     
@@ -25,7 +25,7 @@ void _initObstacles(space_t *space) {
 }
 
 // Returns true if point collides with obstacle
-bool _point_collision(point_t node, space_t *space) {
+bool point_collision(point_t node, space_t *space) {
     return space->ogm[grid_lookup(node.x)][grid_lookup(node.y)];
 }
 
