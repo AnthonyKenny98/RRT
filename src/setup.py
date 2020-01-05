@@ -3,7 +3,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-05 11:05:27
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-01-05 11:35:56
+# @Last Modified time: 2020-01-05 11:58:55
 
 import csv
 
@@ -20,6 +20,8 @@ if (rrt_params['XDIM'] % rrt_params['RESOLUTION'] != 0) or \
 
 with open('ogm.csv', 'w') as ocm:
     writer = csv.writer(ocm, delimiter=',')
-    for i in range(int(rrt_params['YDIM'] / rrt_params['RESOLUTION'])):
+    for i in range(int(rrt_params['XDIM'] / rrt_params['RESOLUTION'])):
         writer.writerow(
-            [0] * int(rrt_params['XDIM'] / rrt_params['RESOLUTION']))
+            [0] * int(rrt_params['YDIM'] / rrt_params['RESOLUTION']))
+
+print("Blank OGM created. Please edit before running RRT")
