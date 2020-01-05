@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-01-05 12:53:12
+* @Last Modified time: 2020-01-05 17:03:01
 */
 
 #include "rrt.h"
@@ -100,7 +100,7 @@ void rrt(graph_t *graph, space_t *space, point_t startNode) {
             // Moves an incremental distance from nearestNode to (randomPoint if distance is < Epsilon) or new point
             newNode = stepFromTo(nearestNode, randomNode);
 
-        } while (point_collision(newNode, space));
+        } while (pointCollision(newNode, space));
         
         // Draw edge
         edge_t newEdge = {.p1 = nearestNode, .p2 = newNode};
@@ -135,7 +135,7 @@ int main(int argc, char *argv[]) {
     point_t startNode;
 
     // Init Start and End Nodes
-    do { startNode = getRandomNode(); } while (point_collision(startNode, space));
+    do { startNode = getRandomNode(); } while (pointCollision(startNode, space));
 
     // run RRT
     clock_t start, finish, total;
@@ -144,6 +144,8 @@ int main(int argc, char *argv[]) {
     finish = clock() / (CLOCKS_PER_SEC / 1000);
     total = finish - start;
     printf("Total Time (milliseconds): %ld\n", total);
+
+    // Save data for python
 
 
     // GUI

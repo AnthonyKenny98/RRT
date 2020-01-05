@@ -16,4 +16,4 @@ ogm.o: ogm.c ogm.h
 
 
 clean:
-	rm rrt *.o *.csv
+	rm rrt *.o

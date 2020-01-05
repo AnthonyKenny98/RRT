@@ -3,7 +3,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-05 11:05:27
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-01-05 14:25:34
+# @Last Modified time: 2020-01-05 17:13:45
 
 import csv
 import os
@@ -29,7 +29,7 @@ def rrt_config():
 
 def create_blank_space(params):
     """Create new csv representing completely empty space."""
-    with open('ogm.csv', 'w') as ogm:
+    with open('cache/ogm.csv', 'w') as ogm:
         writer = csv.writer(ogm, delimiter=',')
         for i in range(int(params['XDIM'] / params['RESOLUTION'])):
             writer.writerow(
@@ -79,7 +79,7 @@ def resize_template(params, template):
     y_multiplier = int(YDIM / ylen)
     with open(template, 'r') as f:
         reader = csv.reader(f)
-        with open('ogm.csv', 'w') as ogm:
+        with open('cache/ogm.csv', 'w') as ogm:
                 writer = csv.writer(ogm, delimiter=',')
                 for row in reader:
                     for y in range(y_multiplier):

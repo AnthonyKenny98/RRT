@@ -4,7 +4,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-02 09:44:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-01-05 11:16:19
+# @Last Modified time: 2020-01-05 16:59:31
 
 import csv
 import json
@@ -21,7 +21,7 @@ TEST_PATH = DIR_PATH + '/tests'
 test_batch_path = ''
 
 # Subroutines of note
-subroutines = ['findNearestNode', '_point_collision', 'edgeCollisions']
+subroutines = ['findNearestNode', 'pointCollision', 'edgeCollisions']
 
 
 def call(command):
@@ -190,8 +190,7 @@ def graph_reports(obstacles):
 
         plt.stackplot(x, y.values(),
                       colors=["#ea4335", "#4285f4", "#fbbc04"],
-                      labels=['findNearestNode', 'point_collision',
-                              'edgeCollisions'])
+                      labels=y.keys())
         plt.legend()
         plt.savefig(test_batch_path + "/graphs/" + str(num_obstacles) + "obs")
 
