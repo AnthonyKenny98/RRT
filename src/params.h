@@ -3,6 +3,6 @@
 #define XDIM 4
 #define YDIM 4
 #define ZDIM 4
-#define EPSILON 1
+#define EPSILON 8
 #define NUM_NODES 1
 #define RESOLUTION 1

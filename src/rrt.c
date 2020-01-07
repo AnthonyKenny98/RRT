@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-01-07 15:29:28
+* @Last Modified time: 2020-01-07 17:09:06
 */
 
 #include "rrt.h"
@@ -26,10 +26,23 @@ point_t stepFromTo(point_t p1, point_t p2) {
         return p2;
     }
     else {
+        // Squared Distance between p1 and p2 xy points
+        double xyPlaneDistanceSquared = distance_squared(p1, (point_t) {.x = p2.x, .y = p2.y, .z = 0});
+        
+        // Find Phi, the angle between the xyplane and the z axis
+        double phi = atan2((p2.z - p1.z) * (p2.z - p1.z), xyPlaneDistanceSquared);
+        
+        // Find Theta, the angle between the x-axis and the y-axis
         double theta = atan2((p2.y-p1.y), (p2.x - p1.x));
+        
+        // Find epsilonPrime, the xy distance that the new point should be
+        double epsilonPrime = EPSILON * cos(phi);
+        
+        // Init New Point
         point_t newPoint;
-        newPoint.x = p1.x + EPSILON*cos(theta);
-        newPoint.y = p1.y + EPSILON*sin(theta);
+        newPoint.x = p1.x + epsilonPrime*cos(theta);
+        newPoint.y = p1.y + epsilonPrime*sin(theta);
+        newPoint.z = p1.z + epsilonPrime*tan(phi);
         return newPoint;
     }
 }
@@ -133,8 +146,6 @@ int main(int argc, char *argv[]) {
 
     // Init Start Node
     point_t startNode;
-
-    // Init Start and End Nodes
     do { startNode = getRandomNode(); } while (pointCollision(startNode, space));
 
     // run RRT
@@ -146,9 +157,9 @@ int main(int argc, char *argv[]) {
     // printf("Total Time (milliseconds): %ld\n", total);
 
     // Save data for python
-    FILE *f = fopen("cache/startNode.txt", "w");
-    fprintf(f, "%f, %f, %f", startNode.x, startNode.y, startNode.z);
-    fclose(f);
+    // FILE *f = fopen("cache/startNode.txt", "w");
+    // fprintf(f, "%f, %f, %f", startNode.x, startNode.y, startNode.z);
+    // fclose(f);
 
     // GUI
     // if (argc > 1 && !strcmp(argv[1], "-gui")) {
