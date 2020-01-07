@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-01-07 17:09:06
+* @Last Modified time: 2020-01-07 17:20:21
 */
 
 #include "rrt.h"
@@ -72,19 +72,33 @@ bool LineIntersectsLine(edge_t e1, edge_t e2) {
 bool edgeCollisions(edge_t edge, space_t *space) {
     for (int i=0; i<XDIM/RESOLUTION; i++) {
         for (int j=0; j<YDIM/RESOLUTION; j++) {
-            if (space->ogm[i][j]) {
+            for (int k=0; k<ZDIM/RESOLUTION; k++) {
+                if (space->ogm[i][j][k]) {
 
-                // Set up edges of grid
-                point_t v1 = (point_t) {.x = i*RESOLUTION, .y = j*RESOLUTION};
-                point_t v2 = (point_t) {.x = i*RESOLUTION, .y = j*RESOLUTION + RESOLUTION};
-                point_t v3 = (point_t) {.x = i*RESOLUTION + RESOLUTION, .y = j*RESOLUTION + RESOLUTION};
-                point_t v4 = (point_t) {.x = i*RESOLUTION + RESOLUTION, .y = j*RESOLUTION};
-                
-                if (LineIntersectsLine(edge, (edge_t) {.p1 = v1, .p2 = v2}) ||
-                    LineIntersectsLine(edge, (edge_t) {.p1 = v2, .p2 = v3}) ||
-                    LineIntersectsLine(edge, (edge_t) {.p1 = v3, .p2 = v4}) ||
-                    LineIntersectsLine(edge, (edge_t) {.p1 = v4, .p2 = v1})) {
-                    return true;
+                    // Set up edges of grid
+                    point_t v1 = (point_t) {.x = i*RESOLUTION, .y = j*RESOLUTION, .z = k*RESOLUTION};
+                    point_t v2 = (point_t) {.x = i*RESOLUTION, .y = j*RESOLUTION + RESOLUTION, .z = k*RESOLUTION};
+                    point_t v3 = (point_t) {.x = i*RESOLUTION + RESOLUTION, .y = j*RESOLUTION + RESOLUTION, .z = k*RESOLUTION};
+                    point_t v4 = (point_t) {.x = i*RESOLUTION + RESOLUTION, .y = j*RESOLUTION, .z = k*RESOLUTION};
+                    point_t v5 = (point_t) {.x = i*RESOLUTION, .y = j*RESOLUTION, .z = k*RESOLUTION + RESOLUTION};
+                    point_t v6 = (point_t) {.x = i*RESOLUTION, .y = j*RESOLUTION + RESOLUTION, .z = k*RESOLUTION + RESOLUTION};
+                    point_t v7 = (point_t) {.x = i*RESOLUTION + RESOLUTION, .y = j*RESOLUTION + RESOLUTION, .z = k*RESOLUTION + RESOLUTION};
+                    point_t v8 = (point_t) {.x = i*RESOLUTION + RESOLUTION, .y = j*RESOLUTION, .z = k*RESOLUTION + RESOLUTION};
+                    
+                    if (LineIntersectsLine(edge, (edge_t) {.p1 = v1, .p2 = v2}) ||
+                        LineIntersectsLine(edge, (edge_t) {.p1 = v2, .p2 = v3}) ||
+                        LineIntersectsLine(edge, (edge_t) {.p1 = v3, .p2 = v4}) ||
+                        LineIntersectsLine(edge, (edge_t) {.p1 = v4, .p2 = v1}) ||
+                        LineIntersectsLine(edge, (edge_t) {.p1 = v5, .p2 = v6}) ||
+                        LineIntersectsLine(edge, (edge_t) {.p1 = v6, .p2 = v7}) ||
+                        LineIntersectsLine(edge, (edge_t) {.p1 = v7, .p2 = v8}) ||
+                        LineIntersectsLine(edge, (edge_t) {.p1 = v8, .p2 = v5}) ||
+                        LineIntersectsLine(edge, (edge_t) {.p1 = v1, .p2 = v5}) ||
+                        LineIntersectsLine(edge, (edge_t) {.p1 = v2, .p2 = v6}) ||
+                        LineIntersectsLine(edge, (edge_t) {.p1 = v3, .p2 = v7}) ||
+                        LineIntersectsLine(edge, (edge_t) {.p1 = v4, .p2 = v8})) {
+                        return true;
+                    }
                 }
             }
         }
@@ -149,17 +163,28 @@ int main(int argc, char *argv[]) {
     do { startNode = getRandomNode(); } while (pointCollision(startNode, space));
 
     // run RRT
-    // clock_t start, finish, total;
-    // start = clock() / (CLOCKS_PER_SEC / 1000);
-    // rrt(graph, space, startNode);
-    // finish = clock() / (CLOCKS_PER_SEC / 1000);
-    // total = finish - start;
-    // printf("Total Time (milliseconds): %ld\n", total);
+    clock_t start, finish, total;
+    start = clock() / (CLOCKS_PER_SEC / 1000);
+    rrt(graph, space, startNode);
+    finish = clock() / (CLOCKS_PER_SEC / 1000);
+    total = finish - start;
+    printf("Total Time (milliseconds): %ld\n", total);
 
     // Save data for python
-    // FILE *f = fopen("cache/startNode.txt", "w");
-    // fprintf(f, "%f, %f, %f", startNode.x, startNode.y, startNode.z);
-    // fclose(f);
+
+    // Start node
+    FILE *f1 = fopen("cache/startNode.txt", "w");
+    fprintf(f1, "%f, %f, %f", startNode.x, startNode.y, startNode.z);
+    fclose(f1);
+
+    // Path
+    FILE *f2 = fopen("cache/path.txt", "w");
+    for (int i = 0; i<NUM_NODES; i++) {
+        fprintf(f2, "%f, %f, %f, %f, %f, %f\n",
+            graph->edges[i].p1.x, graph->edges[i].p1.y, graph->edges[i].p1.z,
+            graph->edges[i].p2.x, graph->edges[i].p2.y, graph->edges[i].p2.z);
+    }
+    fclose(f2);
 
     // GUI
     // if (argc > 1 && !strcmp(argv[1], "-gui")) {

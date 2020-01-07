@@ -4,5 +4,5 @@
 #define YDIM 4
 #define ZDIM 4
 #define EPSILON 8
-#define NUM_NODES 1
+#define NUM_NODES 10
 #define RESOLUTION 1

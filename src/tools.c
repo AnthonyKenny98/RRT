@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-11-01 15:45:21
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-01-05 23:09:35
+* @Last Modified time: 2020-01-07 17:13:13
 */
 
 #include "tools.h"
@@ -24,12 +24,4 @@ point_t getRandomNode() {
     return (point_t) {.x = randomDouble(XDIM),
                       .y = randomDouble(YDIM),
                       .z = randomDouble(ZDIM)};
-}
-
-double perpendicularDistance(point_t node, edge_t line) {
-    double m = (line.p1.y - line.p2.y) / (line.p1.x - line.p2.x);
-    double a = (line.p1.y - line.p2.y);
-    double b = (line.p2.x - line.p1.x);
-    double c = (line.p1.x - line.p2.x)*line.p1.y + (line.p2.y - line.p1.y)*line.p1.x;
-    return (double)(fabs(a * node.x + b * node.y + c)) / (sqrt(pow(a,2) + pow(b,2)));
 }

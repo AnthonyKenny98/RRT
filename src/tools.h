@@ -31,5 +31,3 @@ double distance_squared(point_t p1, point_t p2);
 
 // Returns a random node in the state space
 point_t getRandomNode();
-
-double perpendicularDistance(point_t node, edge_t line);

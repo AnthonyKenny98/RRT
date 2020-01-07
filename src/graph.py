@@ -3,10 +3,10 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-05 20:46:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-01-07 15:49:29
+# @Last Modified time: 2020-01-07 17:27:07
 
 from matplotlib import pyplot as plt
-from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection, Line3DCollection
 import numpy as np
 import csv
 
@@ -104,6 +104,15 @@ def main():
         point = list(csv.reader(f))[0]
     ax.scatter(float(point[0]), float(point[1]), float(point[2]),
                color='blue', marker='*')
+
+    edges = []
+    with open('cache/path.txt', 'r') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            edges.append(((float(row[0]), float(row[1]), float(row[2])), (float(row[3]), float(row[4]), float(row[5]))))
+
+    collection = Line3DCollection(edges, linewidth=1)
+    ax.add_collection3d(collection)
 
     # Show Plot
     plt.show()
