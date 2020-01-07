@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-01-07 17:20:21
+* @Last Modified time: 2020-01-08 09:40:09
 */
 
 #include "rrt.h"
@@ -47,26 +47,47 @@ point_t stepFromTo(point_t p1, point_t p2) {
     }
 }
 
-bool LineIntersectsLine(edge_t e1, edge_t e2) {
-    double q = (e1.p1.y - e2.p1.y) * (e2.p2.x - e2.p1.x) - (e1.p1.x - e2.p1.x) * (e2.p2.y - e2.p1.y);
-    double d = (e1.p2.x - e1.p1.x) * (e2.p2.y - e2.p1.y) - (e1.p2.y - e1.p1.y) * (e2.p2.x - e2.p1.x);
+bool lineIntersectsPrism(edge_t edge, point_t prism_corner) {
 
-    if( d == 0 )
-    {
+    double value(double va, double vb, double t) {
+    return (vb - va) * t + va;
+    }
+
+    bool lineIntersectsPlane(point_t A, point_t B, point_t C) {
+        double t = (C.z - A.z) / (B.z - A.z);
+        double p = value(A.x, B.x, t);
+        double q = value(A.y, B.y, t);
+        return ((C.x <= p) && (p <= C.x + RESOLUTION) && (C.y <= q) && (q <= C.y + RESOLUTION));
+    }
+
+    bool checkTwoFaces(point_t A, point_t B, point_t C) {
+        if (lineIntersectsPlane(A, B, C)) return true;
+        C.z += RESOLUTION;
+        if (lineIntersectsPlane(A, B, C)) return true;
         return false;
     }
 
-    double r = q / d;
+    point_t A, B, C;
 
-    q = (e1.p1.y - e2.p1.y) * (e1.p2.x - e1.p1.x) - (e1.p1.x - e2.p1.x) * (e1.p2.y - e1.p1.y);
-    double s = q / d;
+    // Z Plane
+    A = edge.p1;
+    B = edge.p2;
+    C = prism_corner;
+    if (checkTwoFaces(A, B, C)) return true;
 
-    if( r < 0 || r > 1 || s < 0 || s > 1 )
-    {
-        return false;
-    }
+    // Y Plane
+    A = (point_t) {.x = edge.p1.x, .y = edge.p1.z, .z = edge.p1.y};
+    B = (point_t) {.x = edge.p2.x, .y = edge.p2.z, .z = edge.p2.y};
+    C = (point_t) {.x = prism_corner.x, .y = prism_corner.z, .z = prism_corner.y};
+    if (checkTwoFaces(A, B, C)) return true;
 
-    return true;
+    // X Plane
+    A = (point_t) {.x = edge.p1.z, .y = edge.p1.y, .z = edge.p1.x};
+    B = (point_t) {.x = edge.p2.z, .y = edge.p2.y, .z = edge.p2.x};
+    C = (point_t) {.x = prism_corner.z, .y = prism_corner.y, .z = prism_corner.z};
+    if (checkTwoFaces(A, B, C)) return true;
+
+    return false;
 }
 
 bool edgeCollisions(edge_t edge, space_t *space) {
@@ -75,30 +96,10 @@ bool edgeCollisions(edge_t edge, space_t *space) {
             for (int k=0; k<ZDIM/RESOLUTION; k++) {
                 if (space->ogm[i][j][k]) {
 
-                    // Set up edges of grid
-                    point_t v1 = (point_t) {.x = i*RESOLUTION, .y = j*RESOLUTION, .z = k*RESOLUTION};
-                    point_t v2 = (point_t) {.x = i*RESOLUTION, .y = j*RESOLUTION + RESOLUTION, .z = k*RESOLUTION};
-                    point_t v3 = (point_t) {.x = i*RESOLUTION + RESOLUTION, .y = j*RESOLUTION + RESOLUTION, .z = k*RESOLUTION};
-                    point_t v4 = (point_t) {.x = i*RESOLUTION + RESOLUTION, .y = j*RESOLUTION, .z = k*RESOLUTION};
-                    point_t v5 = (point_t) {.x = i*RESOLUTION, .y = j*RESOLUTION, .z = k*RESOLUTION + RESOLUTION};
-                    point_t v6 = (point_t) {.x = i*RESOLUTION, .y = j*RESOLUTION + RESOLUTION, .z = k*RESOLUTION + RESOLUTION};
-                    point_t v7 = (point_t) {.x = i*RESOLUTION + RESOLUTION, .y = j*RESOLUTION + RESOLUTION, .z = k*RESOLUTION + RESOLUTION};
-                    point_t v8 = (point_t) {.x = i*RESOLUTION + RESOLUTION, .y = j*RESOLUTION, .z = k*RESOLUTION + RESOLUTION};
-                    
-                    if (LineIntersectsLine(edge, (edge_t) {.p1 = v1, .p2 = v2}) ||
-                        LineIntersectsLine(edge, (edge_t) {.p1 = v2, .p2 = v3}) ||
-                        LineIntersectsLine(edge, (edge_t) {.p1 = v3, .p2 = v4}) ||
-                        LineIntersectsLine(edge, (edge_t) {.p1 = v4, .p2 = v1}) ||
-                        LineIntersectsLine(edge, (edge_t) {.p1 = v5, .p2 = v6}) ||
-                        LineIntersectsLine(edge, (edge_t) {.p1 = v6, .p2 = v7}) ||
-                        LineIntersectsLine(edge, (edge_t) {.p1 = v7, .p2 = v8}) ||
-                        LineIntersectsLine(edge, (edge_t) {.p1 = v8, .p2 = v5}) ||
-                        LineIntersectsLine(edge, (edge_t) {.p1 = v1, .p2 = v5}) ||
-                        LineIntersectsLine(edge, (edge_t) {.p1 = v2, .p2 = v6}) ||
-                        LineIntersectsLine(edge, (edge_t) {.p1 = v3, .p2 = v7}) ||
-                        LineIntersectsLine(edge, (edge_t) {.p1 = v4, .p2 = v8})) {
-                        return true;
-                    }
+                    // Set up corner of grid
+                    point_t v = (point_t) {.x = i*RESOLUTION, .y = j*RESOLUTION, .z = k*RESOLUTION};
+                    // Check if edge intersects with grid
+                    if (lineIntersectsPrism(edge, v)) return true;
                 }
             }
         }
@@ -185,63 +186,6 @@ int main(int argc, char *argv[]) {
             graph->edges[i].p2.x, graph->edges[i].p2.y, graph->edges[i].p2.z);
     }
     fclose(f2);
-
-    // GUI
-    // if (argc > 1 && !strcmp(argv[1], "-gui")) {
-    //     FILE *pipe = popen("gnuplot -persist", "w");
-    //     FILE *temp = fopen("path.temp", "w");
-    //     FILE *start = fopen("start.temp", "w");
-
-    //     // Set axis ranges
-    //     fprintf(pipe,"set size square 1,1\n");
-    //     fprintf(pipe,"set key outside\n");
-    //     fprintf(pipe,"set xrange [0:%d]\n", XDIM);
-    //     fprintf(pipe,"set yrange [0:%d]\n", YDIM);
-
-
-    //     // Set Start and End Points
-    //     fprintf(start, "%lf %lf \n", startNode.x, startNode.y);
-
-    //     // Set Obstacles
-    //     int object = 1;
-    //     for (int i=0; i<XDIM/RESOLUTION; i++) {
-    //         for (int j=0; j<YDIM/RESOLUTION; j++) {
-    //             if (space->ogm[i][j]) {
-    //                 fprintf(pipe, 
-    //                         "set object %d rect from %d,%d to %d,%d fc lt 3 back\n", 
-    //                         object, 
-    //                         i*RESOLUTION, 
-    //                         j*RESOLUTION, 
-    //                         i*RESOLUTION+RESOLUTION,
-    //                         j*RESOLUTION+RESOLUTION);
-    //                 object++;
-    //             }
-    //         }
-    //     }
-
-    //     // Plot path
-    //     char *gnu_command;
-    //     fprintf(pipe,"set title \"Number of Nodes: %d\"\n", NUM_NODES);
-    //     for (int a=1; a < graph->existingNodes+1; a++)
-    //     {
-    //         fprintf(temp, "%lf %lf %lf %lf\n", 
-    //             graph->edges[a].p1.x, graph->edges[a].p1.y, 
-    //             graph->edges[a].p2.x, graph->edges[a].p2.y);
-    //     }
-    //     gnu_command = "plot \
-    //                         'path.temp' using 1:2:($3-$1):($4-$2) with vectors nohead lw 0.5 lc rgb \"red\" front title \'RRT\', \
-    //                         'start.temp' with point pointtype 3 ps 2 lc rgb \"blue\" title \'Start Node\'\n";
-    //     fprintf(pipe, "%s\n", gnu_command);
-
-    //     //  Close Files
-    //     fclose(start);
-    //     fclose(temp);
-    //     fclose(pipe); 
-
-    //     // Delete Temporary Files
-    //     remove("path.temp");
-    //     remove("start.temp");  
-    // }
     
     // Free Memory
     // free(graph);

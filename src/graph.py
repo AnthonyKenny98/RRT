@@ -3,7 +3,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-05 20:46:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-01-07 17:27:07
+# @Last Modified time: 2020-01-08 09:50:29
 
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection, Line3DCollection
@@ -56,7 +56,7 @@ def plot_prism(origin, s, ax):
         verts = [list(zip(x, y, z))]
 
         collection = Poly3DCollection(
-            verts, linewidths=1, edgecolors='black', zsort='min')
+            verts, linewidths=1, edgecolors='black', zsort='min', antialiased=False)
         face_color = "red"
         collection.set_facecolor(face_color)
         ax.add_collection3d(collection)
@@ -83,8 +83,20 @@ def main():
         ylim=(0, params['YDIM']),
         zlim=(0, params['ZDIM']))
 
-    # Invert z axis to give correct cartesian look
-    # ax.invert_zaxis()
+    # Plot start point
+    with open('cache/startNode.txt', 'r') as f:
+        point = list(csv.reader(f))[0]
+    ax.scatter(float(point[0]), float(point[1]), float(point[2]),
+               color='blue', marker='*')
+
+    edges = []
+    with open('cache/path.txt', 'r') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            edges.append(((float(row[0]), float(row[1]), float(row[2])), (float(row[3]), float(row[4]), float(row[5]))))
+
+    collection = Line3DCollection(edges, linewidth=1, color="blue")
+    ax.add_collection3d(collection)
 
     # Get Occupancy Grid Map from RRT
     ogm = get_ogm(params)
@@ -99,20 +111,8 @@ def main():
                               k * params['RESOLUTION']]
                     plot_prism(origin, params['RESOLUTION'], ax)
 
-    # Plot start point
-    with open('cache/startNode.txt', 'r') as f:
-        point = list(csv.reader(f))[0]
-    ax.scatter(float(point[0]), float(point[1]), float(point[2]),
-               color='blue', marker='*')
-
-    edges = []
-    with open('cache/path.txt', 'r') as f:
-        reader = csv.reader(f)
-        for row in reader:
-            edges.append(((float(row[0]), float(row[1]), float(row[2])), (float(row[3]), float(row[4]), float(row[5]))))
-
-    collection = Line3DCollection(edges, linewidth=1)
-    ax.add_collection3d(collection)
+    # Update Viewing Angle
+    ax.view_init(elev=10., azim=5)
 
     # Show Plot
     plt.show()
