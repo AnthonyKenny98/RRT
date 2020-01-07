@@ -2,59 +2,62 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-12-08 08:10:44
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-01-05 22:37:02
+* @Last Modified time: 2020-01-06 00:00:41
 */
 
 #include "ogm.h"
+#include <string.h>
 
 void initObstacles(space_t *space) {
     // Open File
-    // FILE *f = fopen("cache/ogm.csv","r");
+    FILE *f = fopen("cache/ogm.csv","r");
     
-    // // Fill out OGM based on csv
-    // int temp;
-    // for(int i=XDIM/RESOLUTION-1;i>=0;i--){
-    //     for(int j=0;j<YDIM/RESOLUTION;j++){
-    //         fscanf(f, "%i,", &temp);
-    //         // Reverse i and j because we read csv opposite way
-    //         // to the way the grid is set up (cartesian)
-    //         space->ogm[j][i] = (bool) temp;
-    //     }
-    //     fscanf(f,"\n");  
-    // }
-    bool temp_array[4][4][4] = {
-        {
-            {0, 0, 0, 0},
-            {0, 0, 0, 0},
-            {0, 0, 0, 0},
-            {0, 0, 0, 0}
-        },
-        {
-            {0, 0, 0, 0},
-            {0, 1, 1, 0},
-            {0, 1, 1, 0},
-            {0, 0, 0, 0}
-        },
-        {
-            {0, 0, 0, 0},
-            {0, 1, 1, 0},
-            {0, 1, 1, 0},
-            {0, 0, 0, 0}
-        },
-        {
-            {0, 0, 0, 0},
-            {0, 0, 0, 0},
-            {0, 0, 0, 0},
-            {0, 0, 0, 0}
-        },
-    };
-    for (int i=0; i<4; i++) {
-        for (int j=0; j<4; j++) {
-            for (int k=0; k<4; k++) {
-                space->ogm[i][j][k] = temp_array[i][j][k];
-            }
+    // Fill out OGM based on csv
+    char temp[100];
+    for(int i=XDIM/RESOLUTION-1;i>=0;i--){
+        for(int j=0;j<YDIM/RESOLUTION;j++){
+            fscanf(f, "%[^c,],", temp);
+            printf("%s,", temp);
+            // Reverse i and j because we read csv opposite way
+            // to the way the grid is set up (cartesian)
+            // space->ogm[j][i] = (bool) temp;
         }
+        // fscanf(f,"\n");
+        // printf("\n");
     }
+    // bool temp_array[4][4][4] = {
+    //     {
+    //         {0, 0, 0, 0},
+    //         {0, 0, 0, 0},
+    //         {0, 0, 0, 0},
+    //         {0, 0, 0, 0}
+    //     },
+    //     {
+    //         {0, 0, 0, 0},
+    //         {0, 1, 1, 0},
+    //         {0, 1, 1, 0},
+    //         {0, 0, 0, 0}
+    //     },
+    //     {
+    //         {0, 0, 0, 0},
+    //         {0, 1, 1, 0},
+    //         {0, 1, 1, 0},
+    //         {0, 0, 0, 0}
+    //     },
+    //     {
+    //         {0, 0, 0, 0},
+    //         {0, 0, 0, 0},
+    //         {0, 0, 0, 0},
+    //         {0, 0, 0, 0}
+    //     },
+    // };
+    // for (int i=0; i<4; i++) {
+    //     for (int j=0; j<4; j++) {
+    //         for (int k=0; k<4; k++) {
+    //             space->ogm[i][j][k] = temp_array[i][j][k];
+    //         }
+    //     }
+    // }
 }
 
 // Returns true if point collides with obstacle

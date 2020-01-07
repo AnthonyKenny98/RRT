@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-11-01 15:45:21
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-01-05 22:21:57
+* @Last Modified time: 2020-01-05 23:09:35
 */
 
 #include "tools.h"
@@ -23,7 +23,7 @@ double distance_squared(point_t p1, point_t p2) {
 point_t getRandomNode() {
     return (point_t) {.x = randomDouble(XDIM),
                       .y = randomDouble(YDIM),
-                      .y = randomDouble(ZDIM)};
+                      .z = randomDouble(ZDIM)};
 }
 
 double perpendicularDistance(point_t node, edge_t line) {

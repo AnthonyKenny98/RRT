@@ -3,7 +3,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-05 11:05:27
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-01-05 23:06:56
+# @Last Modified time: 2020-01-07 08:53:34
 
 import csv
 import os
@@ -26,17 +26,6 @@ def rrt_config():
         print(colored("WARNING: Resolution Dimension mismatch", 'red'))
 
     return params
-
-
-def create_blank_space(params):
-    """Create new csv representing completely empty space."""
-    with open('cache/ogm.csv', 'w') as ogm:
-        writer = csv.writer(ogm, delimiter=',')
-        for i in range(int(params['XDIM'] / params['RESOLUTION'])):
-            writer.writerow(
-                [0] * int(params['YDIM'] / params['RESOLUTION']))
-
-    print(colored("Blank OGM created. Must edit before running RRT", 'green'))
 
 
 def choose_template():
@@ -62,7 +51,7 @@ def resize_template(params, template):
     # Get dimensions of template
     xlen = len(list(reader)[0])
     ylen = len(list(reader))
-    zlen = ylen  # fix this. Not sure how to accom this yet
+    zlen = len(list(reader)[0][0].replace(';', ''))
 
     # Take Resolution into account
     XDIM = params['XDIM'] / params['RESOLUTION']
@@ -72,29 +61,51 @@ def resize_template(params, template):
     # Check dimensions are compatible
     if XDIM % xlen != 0:
         print(colored("WARNING: Incompatible XDIM between template ({}) "
-                      "& graph ({})".format(xlen, params['XDIM'], 'red')))
+                      "& graph ({})".format(xlen, params['XDIM']), 'red'))
     if YDIM % ylen != 0:
         print(colored("WARNING: Incompatible YDIM between template ({}) "
-                      "& graph ({}))".format(ylen, params['YDIM'], 'red')))
+                      "& graph ({}))".format(ylen, params['YDIM']), 'red'))
+    if ZDIM % zlen != 0:
+        print(colored("WARNING: Incompatible ZDIM between template ({}) "
+                      "& graph ({}))".format(zlen, params['ZDIM']), 'red'))
 
-    # Resize and write
+    # Calculate multiplier factors for each dimension
     x_multiplier = int(XDIM / xlen)
     y_multiplier = int(YDIM / ylen)
     z_multiplier = int(ZDIM / zlen)
-    with open(template, 'r') as f:
-        reader = csv.reader(f)
-        with open('cache/ogm.csv', 'w') as ogm:
-                writer = csv.writer(ogm, delimiter=',')
-                for row in reader:
-                    for y in range(y_multiplier):
-                        new_row = []
-                        for col in row:
-                            zs = col.split(';')
-                            zs = list(map(lambda z: str(int(z) * z_multiplier), zs))
-                            new_col = ';'.join(zs)
-                            new_row.append(new_col)
-                        writer.writerow(j for i in [[x] * x_multiplier
-                                        for x in new_row] for j in i)
+
+    # Open template file to read from
+    infile = open(template, 'r')
+    reader = csv.reader(infile)
+
+    # Open OGM file to write to
+    outfile = open('cache/ogm.csv', 'w')
+    writer = csv.writer(outfile, delimiter=',')
+
+    # Iterate through template
+    for row in reader:
+
+        # Write each row <Y_MULTIPLIER> times
+        for y in range(y_multiplier):
+            new_row = []
+
+            # For each grid in X-Y Plane
+            for col in row:
+
+                # Rescale contentes of cell (Z-axis seperated by ';')
+                new_col = [j for i in[[z] * z_multiplier for z in
+                           col.replace(';', '')] for j in i]
+                new_col = ';'.join(new_col)
+                new_row.append(new_col)
+
+            # Rescale X axis and write row to outfile
+            writer.writerow(j for i in [[x] * x_multiplier
+                            for x in new_row] for j in i)
+
+    # Close files
+    infile.close()
+    outfile.close()
+
 
 if __name__ == '__main__':
     params = rrt_config()

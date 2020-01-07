@@ -3,39 +3,39 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-05 20:46:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-01-05 22:18:23
+# @Last Modified time: 2020-01-07 14:14:37
 
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 import numpy as np
+import csv
 
 
 def rrt_config():
     """Get configuration params from params.h file."""
-    params = {
-        'XDIM': 100,
-        'YDIM': 100,
-        'ZDIM': 100,
-        'RESOLUTION': 5
-    }
-
-    # Read params.h
-    # with open('params.h', 'r') as file:
-    #     for line in file:
-    #         params[line.split(' ')[1]] = int(line.split(' ')[2].strip('\n'))
+    params = {}
+    with open('params.h', 'r') as file:
+        for line in file:
+            params[line.split(' ')[1]] = int(line.split(' ')[2].strip('\n'))
     return params
 
 
 def get_ogm(params):
     """."""
-    ogm = np.zeros((params['XDIM'], params['YDIM'], params['ZDIM']))
-
-    ogm[3:6, 3:6, 3:6] = 1
-
+    ogm = np.zeros((params['XDIM'], params['YDIM'], params['ZDIM']), dtype=int)
+    with open('cache/ogm.csv', 'r') as f:
+        reader = list(csv.reader(f))
+        for x in range(params['XDIM']):
+            row = reader[x]
+            for y in range(params['YDIM']):
+                col = row[y]
+                for z in range(params['ZDIM']):
+                    elem = col.split(';')[z]
+                    ogm[x][y][z] = elem
     return ogm
 
 
-def plot_rectangle(origin, s, ax):
+def plot_prism(origin, s, ax):
     """."""
     add = np.array([[0, 0, 0],
                     [0, s, 0],
@@ -79,12 +79,12 @@ def main():
     # Init plot in 3D with correct axis limits
     ax = fig.add_subplot(
         111, projection='3d',
-        xlim=params['XDIM'], ylim=params['YDIM'], zlim=params['ZDIM'])
+        xlim=(0, params['XDIM']),
+        ylim=(0, params['YDIM']),
+        zlim=(0, params['ZDIM']))
 
-    # Invert every axis to give correct cartesian look
-    ax.invert_xaxis()
-    ax.invert_yaxis()
-    ax.invert_zaxis()
+    # Invert z axis to give correct cartesian look
+    # ax.invert_zaxis()
 
     # Get Occupancy Grid Map from RRT
     ogm = get_ogm(params)
@@ -97,7 +97,7 @@ def main():
                     origin = [i * params['RESOLUTION'],
                               j * params['RESOLUTION'],
                               k * params['RESOLUTION']]
-                    plot_rectangle(origin, params['RESOLUTION'], ax)
+                    plot_prism(origin, params['RESOLUTION'], ax)
 
     # Show Plot
     plt.show()

@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-01-05 22:38:40
+* @Last Modified time: 2020-01-05 23:09:18
 */
 
 #include "rrt.h"
@@ -206,7 +206,7 @@ int main(int argc, char *argv[]) {
     // }
     
     // Free Memory
-    free(graph);
+    // free(graph);
     free(space);
 
     return 0;
