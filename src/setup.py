@@ -3,7 +3,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-05 11:05:27
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-01-07 08:53:34
+# @Last Modified time: 2020-01-07 14:43:35
 
 import csv
 import os
@@ -95,7 +95,7 @@ def resize_template(params, template):
                 # Rescale contentes of cell (Z-axis seperated by ';')
                 new_col = [j for i in[[z] * z_multiplier for z in
                            col.replace(';', '')] for j in i]
-                new_col = ';'.join(new_col)
+                new_col = ';'.join(new_col) + ';'
                 new_row.append(new_col)
 
             # Rescale X axis and write row to outfile

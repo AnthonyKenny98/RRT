@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-01-05 23:09:18
+* @Last Modified time: 2020-01-07 15:29:28
 */
 
 #include "rrt.h"
@@ -128,14 +128,14 @@ int main(int argc, char *argv[]) {
     initObstacles(space);
 
     // Init Graph
-    // graph_t *graph = malloc(sizeof(graph_t));
-    // graph->existingNodes = 0;
+    graph_t *graph = malloc(sizeof(graph_t));
+    graph->existingNodes = 0;
 
     // Init Start Node
-    // point_t startNode;
+    point_t startNode;
 
     // Init Start and End Nodes
-    // do { startNode = getRandomNode(); } while (pointCollision(startNode, space));
+    do { startNode = getRandomNode(); } while (pointCollision(startNode, space));
 
     // run RRT
     // clock_t start, finish, total;
@@ -146,7 +146,9 @@ int main(int argc, char *argv[]) {
     // printf("Total Time (milliseconds): %ld\n", total);
 
     // Save data for python
-
+    FILE *f = fopen("cache/startNode.txt", "w");
+    fprintf(f, "%f, %f, %f", startNode.x, startNode.y, startNode.z);
+    fclose(f);
 
     // GUI
     // if (argc > 1 && !strcmp(argv[1], "-gui")) {

@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-12-08 08:10:44
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-01-06 00:00:41
+* @Last Modified time: 2020-01-07 15:25:34
 */
 
 #include "ogm.h"
@@ -13,51 +13,19 @@ void initObstacles(space_t *space) {
     FILE *f = fopen("cache/ogm.csv","r");
     
     // Fill out OGM based on csv
-    char temp[100];
+    int temp;
     for(int i=XDIM/RESOLUTION-1;i>=0;i--){
         for(int j=0;j<YDIM/RESOLUTION;j++){
-            fscanf(f, "%[^c,],", temp);
-            printf("%s,", temp);
-            // Reverse i and j because we read csv opposite way
-            // to the way the grid is set up (cartesian)
-            // space->ogm[j][i] = (bool) temp;
+            for (int k=0; k<ZDIM/RESOLUTION;k++) {
+                fscanf(f, "%i;", &temp);
+                // Reverse i and j because we read csv opposite way
+                // to the way the grid is set up (cartesian)
+                space->ogm[j][i][k] = (bool) temp;
+            }
+            fscanf(f,",");
         }
-        // fscanf(f,"\n");
-        // printf("\n");
+        fscanf(f,"\n");  
     }
-    // bool temp_array[4][4][4] = {
-    //     {
-    //         {0, 0, 0, 0},
-    //         {0, 0, 0, 0},
-    //         {0, 0, 0, 0},
-    //         {0, 0, 0, 0}
-    //     },
-    //     {
-    //         {0, 0, 0, 0},
-    //         {0, 1, 1, 0},
-    //         {0, 1, 1, 0},
-    //         {0, 0, 0, 0}
-    //     },
-    //     {
-    //         {0, 0, 0, 0},
-    //         {0, 1, 1, 0},
-    //         {0, 1, 1, 0},
-    //         {0, 0, 0, 0}
-    //     },
-    //     {
-    //         {0, 0, 0, 0},
-    //         {0, 0, 0, 0},
-    //         {0, 0, 0, 0},
-    //         {0, 0, 0, 0}
-    //     },
-    // };
-    // for (int i=0; i<4; i++) {
-    //     for (int j=0; j<4; j++) {
-    //         for (int k=0; k<4; k++) {
-    //             space->ogm[i][j][k] = temp_array[i][j][k];
-    //         }
-    //     }
-    // }
 }
 
 // Returns true if point collides with obstacle
