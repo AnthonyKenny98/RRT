@@ -3,18 +3,21 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-05 20:46:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-01-08 09:50:29
+# @Last Modified time: 2020-01-16 12:58:04
 
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection, Line3DCollection
 import numpy as np
 import csv
+import sys
+import os
 
+DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
 def rrt_config():
     """Get configuration params from params.h file."""
     params = {}
-    with open('params.h', 'r') as file:
+    with open(DIR_PATH + '/params.h', 'r') as file:
         for line in file:
             params[line.split(' ')[1]] = int(line.split(' ')[2].strip('\n'))
     return params
@@ -23,13 +26,13 @@ def rrt_config():
 def get_ogm(params):
     """."""
     ogm = np.zeros((params['XDIM'], params['YDIM'], params['ZDIM']), dtype=int)
-    with open('cache/ogm.csv', 'r') as f:
+    with open(DIR_PATH + '/cache/ogm.csv', 'r') as f:
         reader = list(csv.reader(f))
-        for x in range(params['XDIM']):
+        for x in range(int(params['XDIM'] / params['RESOLUTION'])):
             row = reader[x]
-            for y in range(params['YDIM']):
+            for y in range(int(params['YDIM'] / params['RESOLUTION'])):
                 col = row[y]
-                for z in range(params['ZDIM']):
+                for z in range(int(params['ZDIM'] / params['RESOLUTION'])):
                     elem = col.split(';')[z]
                     ogm[x][y][z] = elem
     return ogm
@@ -69,7 +72,7 @@ def plot_prism(origin, s, ax):
     draw_face(np.array([p[1], p[2], p[6], p[5]]))
 
 
-def main():
+def main(argv):
     """."""
     params = rrt_config()
 
@@ -84,13 +87,13 @@ def main():
         zlim=(0, params['ZDIM']))
 
     # Plot start point
-    with open('cache/startNode.txt', 'r') as f:
+    with open(DIR_PATH + '/cache/startNode.txt', 'r') as f:
         point = list(csv.reader(f))[0]
     ax.scatter(float(point[0]), float(point[1]), float(point[2]),
                color='blue', marker='*')
 
     edges = []
-    with open('cache/path.txt', 'r') as f:
+    with open(DIR_PATH + '/cache/path.txt', 'r') as f:
         reader = csv.reader(f)
         for row in reader:
             edges.append(((float(row[0]), float(row[1]), float(row[2])), (float(row[3]), float(row[4]), float(row[5]))))
@@ -115,7 +118,12 @@ def main():
     ax.view_init(elev=10., azim=5)
 
     # Show Plot
+    if len(argv) != 2:
+        plotname = "RRTGraph.png"
+    else:
+        plotname = argv[1]
+    # plt.savefig(plotname)
     plt.show()
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv)

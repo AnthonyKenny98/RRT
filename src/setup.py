@@ -3,11 +3,14 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-05 11:05:27
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-01-07 14:43:35
+# @Last Modified time: 2020-01-15 14:04:55
 
 import csv
 import os
 from termcolor import colored
+import sys
+
+DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
 
 def rrt_config():
@@ -15,7 +18,7 @@ def rrt_config():
     params = {}
 
     # Read params.h
-    with open('params.h', 'r') as file:
+    with open(DIR_PATH + '/params.h', 'r') as file:
         for line in file:
             params[line.split(' ')[1]] = int(line.split(' ')[2].strip('\n'))
 
@@ -28,9 +31,12 @@ def rrt_config():
     return params
 
 
-def choose_template():
+def choose_template(argv):
     """Return name of template to use."""
-    templates = os.listdir('templates')
+    if len(argv) == 2:
+        return DIR_PATH + "/templates/" + argv[1]
+
+    templates = os.listdir(DIR_PATH + '/templates')
     print("Available Templates\n===============")
     for i in range(len(templates)):
         print("{}: {}".format(i, templates[i]))
@@ -79,7 +85,7 @@ def resize_template(params, template):
     reader = csv.reader(infile)
 
     # Open OGM file to write to
-    outfile = open('cache/ogm.csv', 'w')
+    outfile = open(DIR_PATH + '/cache/ogm.csv', 'w')
     writer = csv.writer(outfile, delimiter=',')
 
     # Iterate through template
@@ -109,5 +115,5 @@ def resize_template(params, template):
 
 if __name__ == '__main__':
     params = rrt_config()
-    template = choose_template()
+    template = choose_template(sys.argv)
     resize_template(params, template)

@@ -1,4 +1,5 @@
 CC=gcc
+# CC=riscv64-unknown-elf-gcc
 CFLAGS=-I. 
 
 rrt: rrt.o tools.o ogm.o
@@ -6,13 +7,13 @@ rrt: rrt.o tools.o ogm.o
 
 
 rrt.o: rrt.c tools.h
-	gcc -c rrt.c -g -lm
+	$(CC) -c rrt.c -g -lm
 
 tools.o: tools.c tools.h
-	gcc -c tools.c -g -lm
+	$(CC) -c tools.c -g -lm
 
 ogm.o: ogm.c ogm.h
-	gcc -c ogm.c -g -lm
+	$(CC) -c ogm.c -g -lm
 
 
 clean:

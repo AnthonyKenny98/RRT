@@ -4,7 +4,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-02 09:44:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-01-05 16:59:31
+# @Last Modified time: 2020-01-15 19:03:40
 
 import csv
 import json
@@ -76,13 +76,18 @@ def setup_test(test):
     file_path = str(Path(DIR_PATH).parent) + '/src/params.h'
 
     # "define" keywords
-    keywords = ['NUM_OBSTACLES', 'OBSTACLE_SIZE', 'XDIM', 'YDIM',
+    keywords = ['XDIM', 'YDIM', 'ZDIM',
                 'EPSILON', 'NUM_NODES', 'RESOLUTION']
 
     with open(file_path, 'w') as f:
         for keyword in keywords:
             line = "#define " + keyword + ' ' + str(test[keyword]) + '\n'
             f.write(line)
+
+    with open(test_batch_path + '/template.txt', 'r') as f:
+        template = f.read()
+        call("cd {}; python3 src/setup.py {}".format(
+             str(Path(DIR_PATH).parent), template))
 
 
 def collect_hotspots(test_name):
@@ -136,6 +141,7 @@ def run_tests():
         print("Running Test {}: {}".format(test['TESTNUM'], test['NAME']))
         setup_test(test)
         collect_hotspots(test['NAME'])
+        # graph_rrt(test["NAME"] + ".png")
 
 
 def run_reports():
@@ -143,6 +149,11 @@ def run_reports():
     for test in get_tests():
         print("Running Report {}: {}".format(test['TESTNUM'], test['NAME']))
         topdown_report(test['NAME'])
+
+
+def graph_rrt(path):
+    """Make 3D graph of RRT."""
+    call("cd ..; python3 {}/src/graph.py {}".format(str(Path(DIR_PATH).parent), path))
 
 
 def compile_report_data():
@@ -161,28 +172,28 @@ def compile_report_data():
                         row["CPU Time:Total"]) / 100
 
     # Organise data
-    obstacles = {}
+    data = {}
     for test in tests:
-        if int(test['NUM_OBSTACLES']) not in obstacles.keys():
-            obstacles[int(test['NUM_OBSTACLES'])] = {}
-        obstacles[int(test['NUM_OBSTACLES'])][
-            int(test['NUM_NODES'])] = test['results']
-    return obstacles
+        if int(test['XDIM']) not in data.keys():
+            data[int(test['XDIM'])] = {}
+        data[int(test['XDIM'])][
+            int(test['XDIM'])] = test['results']
+    return data
 
 
-def graph_reports(obstacles):
+def graph_reports(xdims):
     """Save graphs of data."""
-    for num_obstacles in obstacles.keys():
+    for xdim in xdims.keys():
         x = []
         y = {s: [] for s in subroutines}
-        for key, value in obstacles[num_obstacles].items():
+        for key, value in xdims[xdim].items():
             x.append(key)
             for subroutine in subroutines:
                 y[subroutine].append(value.get(subroutine, 0))
 
         plt.figure(figsize=(15, 10))
         plt.suptitle("% of CPU Time per Function")
-        plt.title("{} Obstacles".format(num_obstacles))
+        plt.title("{} XDIM".format(xdim))
         plt.xlabel("Number of Nodes in Graph")
         plt.ylabel("% of CPU Time")
         plt.grid(color='gray', axis='y')
@@ -192,7 +203,7 @@ def graph_reports(obstacles):
                       colors=["#ea4335", "#4285f4", "#fbbc04"],
                       labels=y.keys())
         plt.legend()
-        plt.savefig(test_batch_path + "/graphs/" + str(num_obstacles) + "obs")
+        plt.savefig(test_batch_path + "/graphs/" + str(xdim) + "xdim")
 
 
 if __name__ == '__main__':
@@ -202,5 +213,5 @@ if __name__ == '__main__':
             run_tests()
         if not match_tests('/reports'):
             run_reports()
-    obstacles = compile_report_data()
-    graph_reports(obstacles)
+    xdims = compile_report_data()
+    graph_reports(xdims)
