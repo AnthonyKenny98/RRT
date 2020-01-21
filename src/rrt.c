@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-01-21 14:38:28
+* @Last Modified time: 2020-01-21 14:41:49
 */
 
 #include "rrt.h"
@@ -93,6 +93,7 @@ bool lineIntersectsPrism(edge_t edge, point_t prism_corner) {
 bool edgeCollisions(edge_t edge, space_t *space) {
     point_t min, max;
     
+
     // Get min and max x
     if (edge.p1.x < edge.p2.x) {
         min.x = edge.p1.x;
@@ -121,7 +122,6 @@ bool edgeCollisions(edge_t edge, space_t *space) {
     for (int i= (int) round(min.x - 0.5); i<(int) round(max.x + 0.5); i++) {
         for (int j= (int) round(min.y - 0.5); j<(int) round(max.y + 0.5); j++) {
             for (int k= (int) round(min.z - 0.5); k<(int) round(max.z + 0.5); k++) {
-                printf("Edge: (%f,%f, %f),(%f, %f, %f) Checking OGM[%i][%i][%i]\n", edge.p1.x, edge.p1.y, edge.p1.z, edge.p2.x, edge.p2.y, edge.p2.z, i, j, k);
                 if (space->ogm[i][j][k]) {
 
                     // Set up corner of grid
