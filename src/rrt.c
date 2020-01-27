@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-01-21 14:41:49
+* @Last Modified time: 2020-01-27 12:35:57
 */
 
 #include "rrt.h"
@@ -47,25 +47,25 @@ point_t stepFromTo(point_t p1, point_t p2) {
     }
 }
 
-bool lineIntersectsPrism(edge_t edge, point_t prism_corner) {
-
-    double value(double va, double vb, double t) {
+double value(double va, double vb, double t) {
     return (vb - va) * t + va;
-    }
+}
 
-    bool lineIntersectsPlane(point_t A, point_t B, point_t C) {
-        double t = (C.z - A.z) / (B.z - A.z);
-        double p = value(A.x, B.x, t);
-        double q = value(A.y, B.y, t);
-        return ((C.x <= p) && (p <= C.x + RESOLUTION) && (C.y <= q) && (q <= C.y + RESOLUTION));
-    }
+bool lineIntersectsPlane(point_t A, point_t B, point_t C) {
+    double t = (C.z - A.z) / (B.z - A.z);
+    double p = value(A.x, B.x, t);
+    double q = value(A.y, B.y, t);
+    return ((C.x <= p) && (p <= C.x + RESOLUTION) && (C.y <= q) && (q <= C.y + RESOLUTION));
+}
 
-    bool checkTwoFaces(point_t A, point_t B, point_t C) {
-        if (lineIntersectsPlane(A, B, C)) return true;
-        C.z += RESOLUTION;
-        if (lineIntersectsPlane(A, B, C)) return true;
-        return false;
-    }
+bool checkTwoFaces(point_t A, point_t B, point_t C) {
+    if (lineIntersectsPlane(A, B, C)) return true;
+    C.z += RESOLUTION;
+    if (lineIntersectsPlane(A, B, C)) return true;
+    return false;
+}
+
+bool lineIntersectsPrism(edge_t edge, point_t prism_corner) {
 
     point_t A, B, C;
 
@@ -91,37 +91,39 @@ bool lineIntersectsPrism(edge_t edge, point_t prism_corner) {
 }
 
 bool edgeCollisions(edge_t edge, space_t *space) {
-    point_t min, max;
     
-
-    // Get min and max x
+    int min_x, max_x, min_y, max_y, min_z, max_z;
+    
+    // Get min_p and max_p x
     if (edge.p1.x < edge.p2.x) {
-        min.x = edge.p1.x;
-        max.x = edge.p2.x;
+        min_x = grid_lookup(edge.p1.x);
+        max_x = grid_lookup(edge.p2.x);
     } else {
-        min.x = edge.p1.x;
-        max.x = edge.p2.x;
+        min_x = grid_lookup(edge.p2.x);
+        max_x = grid_lookup(edge.p1.x);
     }
-    // Get min and max y
+    // Get min_p and max_p y
     if (edge.p1.y < edge.p2.y) {
-        min.y = edge.p1.y;
-        max.y = edge.p2.y;
+        min_y = grid_lookup(edge.p1.y);
+        max_y = grid_lookup(edge.p2.y);
     } else {
-        min.y = edge.p2.y;
-        max.y = edge.p1.y;
+        min_y = grid_lookup(edge.p2.y);
+        max_y = grid_lookup(edge.p1.y);
     }
-    // Get min and max z
+    // Get min_p and max_p z
     if (edge.p1.z < edge.p2.z) {
-        min.z = edge.p1.z;
-        max.z = edge.p2.z;
+        min_z = grid_lookup(edge.p1.z);
+        max_z = grid_lookup(edge.p2.z);
     } else {
-        min.z = edge.p2.z;
-        max.z = edge.p1.z;
+        min_z = grid_lookup(edge.p2.z);
+        max_z = grid_lookup(edge.p1.z);
     }
 
-    for (int i= (int) round(min.x - 0.5); i<(int) round(max.x + 0.5); i++) {
-        for (int j= (int) round(min.y - 0.5); j<(int) round(max.y + 0.5); j++) {
-            for (int k= (int) round(min.z - 0.5); k<(int) round(max.z + 0.5); k++) {
+
+
+    for (int i=min_x; i <= max_x; i++) {
+        for (int j=min_y; j<=max_y; j++) {
+            for (int k=min_z; k<=max_z; k++) {
                 if (space->ogm[i][j][k]) {
 
                     // Set up corner of grid
@@ -208,7 +210,7 @@ int main(int argc, char *argv[]) {
 
     // Path
     FILE *f2 = fopen("cache/path.txt", "w");
-    for (int i = 0; i<NUM_NODES; i++) {
+    for (int i = 0; i<NUM_NODES - 1; i++) {
         fprintf(f2, "%f, %f, %f, %f, %f, %f\n",
             graph->edges[i].p1.x, graph->edges[i].p1.y, graph->edges[i].p1.z,
             graph->edges[i].p2.x, graph->edges[i].p2.y, graph->edges[i].p2.z);
@@ -216,7 +218,7 @@ int main(int argc, char *argv[]) {
     fclose(f2);
     
     // Free Memory
-    // free(graph);
+    free(graph);
     free(space);
 
     return 0;

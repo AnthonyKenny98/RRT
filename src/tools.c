@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-11-01 15:45:21
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-01-21 14:09:26
+* @Last Modified time: 2020-01-22 14:47:26
 */
 
 #include "tools.h"
@@ -21,7 +21,7 @@ double distance_squared(point_t p1, point_t p2) {
 
 // Returns a random node in the state space
 point_t getRandomNode() {
-    return (point_t) {.x = randomDouble(XDIM),
-                      .y = randomDouble(YDIM),
-                      .z = randomDouble(ZDIM)};
+    return (point_t) {.x = randomDouble(XDIM - 1),
+                      .y = randomDouble(YDIM - 1),
+                      .z = randomDouble(ZDIM - 1)};
 }

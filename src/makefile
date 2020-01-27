@@ -1,8 +1,8 @@
 # Must execute the following to compile for riscv:
 # export PATH=$PATH:$HOME/Documents/rocket-chip/rocket-tools/bin
-CC=riscv64-unknown-elf-gcc
+# CC=riscv64-unknown-elf-gcc
 
-# CC=gcc
+CC=gcc
 CFLAGS=-I. 
 
 rrt: rrt.o tools.o ogm.o
