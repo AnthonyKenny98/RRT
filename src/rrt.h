@@ -1,7 +1,6 @@
 #ifndef RRT
 #define RRT
 
-#define STEP_DELAY 2
 #include "ogm.h"
 
 typedef struct graph {

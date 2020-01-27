@@ -1,0 +1,1 @@
+Test conducted with OGM implementation for point_collision

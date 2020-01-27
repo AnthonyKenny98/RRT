@@ -1,71 +1,129 @@
-"""Graph rrt from cache folder."""
-
+"""LEarning."""
 # -*- coding: utf-8 -*-
 # @Author: AnthonyKenny98
-# @Date:   2020-01-05 17:04:03
+# @Date:   2020-01-05 20:46:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-01-05 20:37:07
+# @Last Modified time: 2020-01-27 12:36:33
 
-
-import matplotlib.pyplot as plt
-import matplotlib.colors as mcol
+from matplotlib import pyplot as plt
+from mpl_toolkits.mplot3d.art3d import Poly3DCollection, Line3DCollection
 import numpy as np
+import csv
+import sys
+import os
 
-
-PARAM_PATH = 'params.h'
-OGM_PATH = 'cache/ogm.csv'
-
+DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
 def rrt_config():
     """Get configuration params from params.h file."""
     params = {}
-
-    # Read params.h
-    with open('params.h', 'r') as file:
+    with open(DIR_PATH + '/params.h', 'r') as file:
         for line in file:
             params[line.split(' ')[1]] = int(line.split(' ')[2].strip('\n'))
     return params
 
 
-def read_csv():
-    """Return 2D numpy array of OGM."""
-    with open(OGM_PATH, 'r') as f:
-        ogm = np.loadtxt(f, delimiter=',')
+def get_ogm(params):
+    """."""
+    ogm = np.zeros((params['XDIM'], params['YDIM'], params['ZDIM']), dtype=int)
+    with open(DIR_PATH + '/cache/ogm.csv', 'r') as f:
+        reader = list(csv.reader(f))
+        for x in range(int(params['XDIM'] / params['RESOLUTION'])):
+            row = reader[x]
+            for y in range(int(params['YDIM'] / params['RESOLUTION'])):
+                col = row[y]
+                for z in range(int(params['ZDIM'] / params['RESOLUTION'])):
+                    elem = col.split(';')[z]
+                    ogm[x][y][z] = elem
     return ogm
 
 
-params = rrt_config()
-ogm = read_csv()
+def plot_prism(origin, s, ax):
+    """."""
+    add = np.array([[0, 0, 0],
+                    [0, s, 0],
+                   [s, s, 0],
+                   [s, 0, 0],
+                   [0, 0, s],
+                   [0, s, s],
+                   [s, s, s],
+                   [s, 0, s]])
 
-# rescale ogm
-ogm = np.kron(ogm, np.ones((params['RESOLUTION'], params['RESOLUTION'])))
+    p = origin + add
 
-# New figure
-fig = plt.figure()
-ax = fig.add_axes([0, 0, params['XDIM'], params['YDIM']])
+    def draw_face(p1):
+        x = p1[:, 0]
+        y = p1[:, 1]
+        z = p1[:, 2]
 
-# Define Color Map
-cmap = mcol.ListedColormap(['white', 'red'])
+        verts = [list(zip(x, y, z))]
 
-# Build Grid Map
-im = plt.imshow(ogm, cmap=cmap, extent=(0, params['XDIM'], params['YDIM'], 0),
-                origin='lower')
+        collection = Poly3DCollection(
+            verts, linewidths=1, edgecolors='black', zsort='min', antialiased=False)
+        face_color = "red"
+        collection.set_facecolor(face_color)
+        ax.add_collection3d(collection)
 
-# Set major ticks
-ax.set_xticks(np.arange(0, params['XDIM'], params['RESOLUTION']))
-ax.set_yticks(np.arange(0, params['YDIM'], params['RESOLUTION']))
-# Disable major tick labels
-ax.set_xticklabels([])
-ax.set_yticklabels([])
-# Set grid based on major ticks
-ax.grid(color='grey', linestyle='-', linewidth=0.5)
+    draw_face(np.array([p[0], p[1], p[2], p[3]]))
+    draw_face(np.array([p[4], p[5], p[6], p[7]]))
+    draw_face(np.array([p[0], p[1], p[5], p[4]]))
+    draw_face(np.array([p[2], p[3], p[7], p[6]]))
+    draw_face(np.array([p[0], p[3], p[7], p[4]]))
+    draw_face(np.array([p[1], p[2], p[6], p[5]]))
 
-# Set minor ticks for scale
-ax.set_xticks(np.arange(0, params['XDIM'], 10), minor=True)
-ax.set_yticks(np.arange(0, params['YDIM'], 10), minor=True)
 
-# Labels for minor ticks
-ax.set_xticklabels(np.arange(0, params['XDIM'], 10), minor=True)
-ax.set_yticklabels(np.arange(0, params['YDIM'], 10), minor=True)
+def main(argv):
+    """."""
+    params = rrt_config()
 
-plt.show()
+    # Create Figure
+    fig = plt.figure("Configuration Space")
+
+    # Init plot in 3D with correct axis limits
+    ax = fig.add_subplot(
+        111, projection='3d',
+        xlim=(0, params['XDIM']),
+        ylim=(0, params['YDIM']),
+        zlim=(0, params['ZDIM']))
+
+    # Plot start point
+    with open(DIR_PATH + '/cache/startNode.txt', 'r') as f:
+        point = list(csv.reader(f))[0]
+    ax.scatter(float(point[0]), float(point[1]), float(point[2]),
+               color='blue', marker='*')
+
+    edges = []
+    with open(DIR_PATH + '/cache/path.txt', 'r') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            edges.append(((float(row[0]), float(row[1]), float(row[2])), (float(row[3]), float(row[4]), float(row[5]))))
+
+    collection = Line3DCollection(edges, linewidth=1, color="blue")
+    ax.add_collection3d(collection)
+
+    # Get Occupancy Grid Map from RRT
+    ogm = get_ogm(params)
+
+    # Draw Occupied Grids
+    for i in range(int(params['XDIM'] / params['RESOLUTION'])):
+        for j in range(int(params['YDIM'] / params['RESOLUTION'])):
+            for k in range(int(params['ZDIM'] / params['RESOLUTION'])):
+                if ogm[i][j][k]:
+                    origin = [i * params['RESOLUTION'],
+                              j * params['RESOLUTION'],
+                              k * params['RESOLUTION']]
+                    plot_prism(origin, params['RESOLUTION'], ax)
+
+    # Update Viewing Angle
+    ax.view_init(elev=10., azim=5)
+
+    # Show Plot
+    if len(argv) != 2:
+        plotname = "RRTGraph.png"
+    else:
+        plotname = argv[1]
+    plt.savefig(plotname)
+    # plt.show()
+
+if __name__ == "__main__":
+    main(sys.argv)
