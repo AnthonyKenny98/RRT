@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-01-27 12:35:57
+* @Last Modified time: 2020-02-03 22:13:04
 */
 
 #include "rrt.h"
@@ -147,23 +147,45 @@ void rrt(graph_t *graph, space_t *space, point_t startNode) {
     point_t nearestNode;
     point_t newNode;
 
+    // Init Clock
+    int timer[3] = {0};
+    clock_t start, finish, total;
+
+    bool pc_test, ec_test;
+
     for (int i=1; i<NUM_NODES; i++) {
         
         // Get Random Point that is not in collision with 
         do {
             randomNode = getRandomNode();
-            // Run through all points in graph, returns point nearest to randomPoint 
+            // Run through all points in graph, returns point nearest to randomPoint
+            start = clock() / (CLOCKS_PER_SEC / 1000);
             nearestNode = findNearestNode(randomNode, graph);
+            finish = clock() / (CLOCKS_PER_SEC / 1000);
+            total = finish - start;
+            timer[0] += total;
 
             // Moves an incremental distance from nearestNode to (randomPoint if distance is < Epsilon) or new point
             newNode = stepFromTo(nearestNode, randomNode);
 
-        } while (pointCollision(newNode, space));
+            start = clock() / (CLOCKS_PER_SEC / 1000);
+            pc_test = pointCollision(newNode, space);
+            finish = clock() / (CLOCKS_PER_SEC / 1000);
+            total = finish - start;
+            timer[1] += total;
+
+        } while (pc_test);
         
         // Draw edge
         edge_t newEdge = {.p1 = nearestNode, .p2 = newNode};
 
-        if (!edgeCollisions(newEdge, space)) {
+        start = clock() / (CLOCKS_PER_SEC / 1000);
+        ec_test = !edgeCollisions(newEdge, space);
+        finish = clock() / (CLOCKS_PER_SEC / 1000);
+        total = finish - start;
+        timer[2] += total;
+
+        if (ec_test) {
 
             // Update graph
             graph->nodes[i] = newNode;
@@ -174,6 +196,8 @@ void rrt(graph_t *graph, space_t *space, point_t startNode) {
             i--;
         }
     }
+
+    printf("findNearestNode = %d ms   |   pointCollision = %d   |   edgeCollision = %d\n", timer[0], timer[1], timer[2]);
 }
 
 int main(int argc, char *argv[]) {
