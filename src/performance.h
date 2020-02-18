@@ -43,7 +43,8 @@ void print_performance(performance_t performance) {
 }
 
 clock_t clk_milli() {
-    return clock() / (CLOCKS_PER_SEC / 1000);
+    // return clock() / (CLOCKS_PER_SEC / 1000); // Milliseconds
+    return clock() / (CLOCKS_PER_SEC / 1000000); // Microseconds
 }
 
 counter_t start_clk(counter_t counter) {

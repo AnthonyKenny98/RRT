@@ -3,8 +3,6 @@
 
 #include "ogm.h"
 
-#define NUMBUCKETS 10
-
 typedef struct graph {
     point_t nodes[NUMBUCKETS][NUM_NODES];
     edge_t edges[NUM_NODES];
@@ -20,7 +18,7 @@ int hash(point_t p) {
         .z = ZDIM/2
     };
     double d = distance_squared(p, center_point);
-    return (int) max(round(d - 0.5), 0) % 10;
+    return (int) max(round(d - 0.5), 0) % NUMBUCKETS;
 }
 
 void add_node_to_graph(graph_t *graph, int i, point_t node) {
