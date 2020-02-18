@@ -3,7 +3,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-05 11:05:27
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-01-15 14:04:55
+# @Last Modified time: 2020-02-18 10:51:00
 
 import csv
 import os
@@ -51,6 +51,7 @@ def choose_template(argv):
 def resize_template(params, template):
     """Resize Template according to params."""
     # Open file
+    print("Opening File: " + template)
     with open(template, 'r') as f:
         reader = list(csv.reader(f))
 

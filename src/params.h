@@ -1,6 +1,6 @@
-#define XDIM 256
-#define YDIM 256
-#define ZDIM 256
-#define EPSILON 32
-#define NUM_NODES 10000
+#define XDIM 16
+#define YDIM 16
+#define ZDIM 16
+#define EPSILON 4
+#define NUM_NODES 200
 #define RESOLUTION 1

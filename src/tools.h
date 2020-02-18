@@ -35,22 +35,11 @@ typedef struct edge {
 
 // Returns a Random Double. Requires srand(time(NULL)) to be called in main
 double randomDouble(int max);
-// {
-//     return ((double)rand() / (double)RAND_MAX) * max;
-// }
+
 
 // Euclidean Distance between two points
 double distance_squared(point_t p1, point_t p2);
- // {
- //    return ((p1.x-p2.x)*(p1.x-p2.x)) + 
- //           ((p1.y-p2.y)*(p1.y-p2.y)) +
- //           ((p1.z-p2.z)*(p1.z-p2.z));
-// }
+
 
 // Returns a random node in the state space
 point_t getRandomNode();
-//  {
-//     return (point_t) {.x = randomDouble(XDIM),
-//                       .y = randomDouble(YDIM),
-//                       .z = randomDouble(ZDIM)};
-// }

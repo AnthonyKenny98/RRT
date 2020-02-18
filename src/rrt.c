@@ -2,17 +2,21 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-02-03 22:13:04
+* @Last Modified time: 2020-02-18 13:57:29
 */
 
 #include "rrt.h"
+#include "performance.h"
+
+performance_t perf;
 
 // Finds Node in current Graph nearest to New Point
-point_t findNearestNode(point_t newPoint, graph_t *graph) {
-    point_t nearestNode = graph->nodes[0];
-    for (int i=0; i<graph->existingNodes; i++) {
-        if (distance_squared(graph->nodes[i], newPoint) < distance_squared(nearestNode, newPoint)) {
-            nearestNode = graph->nodes[i];
+point_t findNearestNode(point_t newPoint, graph_t *graph, point_t startNode) {
+    point_t nearestNode = startNode;
+    int bucket = hash(newPoint);
+    for (int i=0; i<graph->existingNodes[bucket]; i++) {
+        if (distance_squared(get_node_from_graph(graph, bucket, i), newPoint) < distance_squared(nearestNode, newPoint)) {
+            nearestNode = get_node_from_graph(graph, bucket, i);
         }
     }
     return nearestNode;
@@ -140,16 +144,12 @@ bool edgeCollisions(edge_t edge, space_t *space) {
 void rrt(graph_t *graph, space_t *space, point_t startNode) {
 
     // Start Point
-    graph->nodes[0] = startNode;
+    add_node_to_graph(graph, 0, startNode);
 
     // Init points
     point_t randomNode = startNode;
     point_t nearestNode;
     point_t newNode;
-
-    // Init Clock
-    int timer[3] = {0};
-    clock_t start, finish, total;
 
     bool pc_test, ec_test;
 
@@ -157,75 +157,89 @@ void rrt(graph_t *graph, space_t *space, point_t startNode) {
         
         // Get Random Point that is not in collision with 
         do {
+
+            perf.rrt_getRandomNode = start_clk(perf.rrt_getRandomNode);
             randomNode = getRandomNode();
+            perf.rrt_getRandomNode = end_clk(perf.rrt_getRandomNode);
+            
             // Run through all points in graph, returns point nearest to randomPoint
-            start = clock() / (CLOCKS_PER_SEC / 1000);
-            nearestNode = findNearestNode(randomNode, graph);
-            finish = clock() / (CLOCKS_PER_SEC / 1000);
-            total = finish - start;
-            timer[0] += total;
+            perf.rrt_findNearestNode = start_clk(perf.rrt_findNearestNode);
+            nearestNode = findNearestNode(randomNode, graph, startNode);
+            perf.rrt_findNearestNode = end_clk(perf.rrt_findNearestNode);
 
             // Moves an incremental distance from nearestNode to (randomPoint if distance is < Epsilon) or new point
+            perf.rrt_stepFromTo = start_clk(perf.rrt_stepFromTo);
             newNode = stepFromTo(nearestNode, randomNode);
+            perf.rrt_stepFromTo = end_clk(perf.rrt_stepFromTo);
 
-            start = clock() / (CLOCKS_PER_SEC / 1000);
+            perf.rrt_pointCollision = start_clk(perf.rrt_pointCollision);
             pc_test = pointCollision(newNode, space);
-            finish = clock() / (CLOCKS_PER_SEC / 1000);
-            total = finish - start;
-            timer[1] += total;
+            perf.rrt_pointCollision = end_clk(perf.rrt_pointCollision);
 
         } while (pc_test);
         
         // Draw edge
         edge_t newEdge = {.p1 = nearestNode, .p2 = newNode};
 
-        start = clock() / (CLOCKS_PER_SEC / 1000);
+        perf.rrt_edgeCollision = start_clk(perf.rrt_edgeCollision);
         ec_test = !edgeCollisions(newEdge, space);
-        finish = clock() / (CLOCKS_PER_SEC / 1000);
-        total = finish - start;
-        timer[2] += total;
+        perf.rrt_edgeCollision = end_clk(perf.rrt_edgeCollision);
 
         if (ec_test) {
-
             // Update graph
-            graph->nodes[i] = newNode;
-            graph->existingNodes++;
+            add_node_to_graph(graph, i, newNode);
             graph->edges[i] = newEdge;
         }
         else {
             i--;
         }
     }
-
-    printf("findNearestNode = %d ms   |   pointCollision = %d   |   edgeCollision = %d\n", timer[0], timer[1], timer[2]);
 }
 
 int main(int argc, char *argv[]) {
+
+    perf.total = start_clk(perf.total);
+    
+    ///////////////////////////////////////////////////////////////////////////
+    // SETUP STAGE
+    ///////////////////////////////////////////////////////////////////////////
+    perf.setup = start_clk(perf.setup);
 
     // Configure Randomness
     srand ((unsigned int) time(NULL)*10000000);
 
     // Init Space
+    perf.setup_space = start_clk(perf.setup_space);
     space_t *space = malloc(sizeof(space_t));
     initObstacles(space);
+    perf.setup_space = end_clk(perf.setup_space);
 
     // Init Graph
+    perf.setup_graph = start_clk(perf.setup_graph);
     graph_t *graph = malloc(sizeof(graph_t));
-    graph->existingNodes = 0;
+    perf.setup_graph = end_clk(perf.setup_graph);
 
     // Init Start Node
+    perf.setup_start = start_clk(perf.setup_start);
     point_t startNode;
+    perf.setup_start = end_clk(perf.setup_start);
     do { startNode = getRandomNode(); } while (pointCollision(startNode, space));
 
-    // run RRT
-    clock_t start, finish, total;
-    start = clock() / (CLOCKS_PER_SEC / 1000);
-    rrt(graph, space, startNode);
-    finish = clock() / (CLOCKS_PER_SEC / 1000);
-    total = finish - start;
-    printf("Total Time (milliseconds): %ld\n", total);
 
-    // Save data for python
+    perf.setup = end_clk(perf.setup);
+    ///////////////////////////////////////////////////////////////////////////
+    // Run RRT
+    ///////////////////////////////////////////////////////////////////////////
+
+    perf.rrt = start_clk(perf.rrt);
+    rrt(graph, space, startNode);
+    perf.rrt = end_clk(perf.rrt);
+    
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Log Data for Later Analysis
+    ///////////////////////////////////////////////////////////////////////////
+    perf.log = start_clk(perf.log);
 
     // Start node
     FILE *f1 = fopen("cache/startNode.txt", "w");
@@ -240,10 +254,15 @@ int main(int argc, char *argv[]) {
             graph->edges[i].p2.x, graph->edges[i].p2.y, graph->edges[i].p2.z);
     }
     fclose(f2);
-    
+
     // Free Memory
     free(graph);
     free(space);
+
+    perf.log = end_clk(perf.log);
+
+    perf.total = end_clk(perf.total);
+    print_performance(perf);
 
     return 0;
 }
