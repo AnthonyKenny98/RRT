@@ -2,13 +2,11 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-02-18 13:57:29
+* @Last Modified time: 2020-02-19 15:31:47
 */
 
 #include "rrt.h"
 #include "performance.h"
-
-performance_t perf;
 
 // Finds Node in current Graph nearest to New Point
 point_t findNearestNode(point_t newPoint, graph_t *graph, point_t startNode) {
@@ -141,7 +139,7 @@ bool edgeCollisions(edge_t edge, space_t *space) {
     return false;
 }
 
-void rrt(graph_t *graph, space_t *space, point_t startNode) {
+void rrt(graph_t *graph, space_t *space, point_t startNode, performance_t* perf) {
 
     // Start Point
     add_node_to_graph(graph, 0, startNode);
@@ -158,32 +156,32 @@ void rrt(graph_t *graph, space_t *space, point_t startNode) {
         // Get Random Point that is not in collision with 
         do {
 
-            perf.rrt_getRandomNode = start_clk(perf.rrt_getRandomNode);
+            start_clk(perf, CLK_RRT_getRandomNode);
             randomNode = getRandomNode();
-            perf.rrt_getRandomNode = end_clk(perf.rrt_getRandomNode);
-            
+            end_clk(perf, CLK_RRT_getRandomNode);
+
             // Run through all points in graph, returns point nearest to randomPoint
-            perf.rrt_findNearestNode = start_clk(perf.rrt_findNearestNode);
+            start_clk(perf, CLK_RRT_findNearestNode);
             nearestNode = findNearestNode(randomNode, graph, startNode);
-            perf.rrt_findNearestNode = end_clk(perf.rrt_findNearestNode);
+            end_clk(perf, CLK_RRT_findNearestNode);
 
             // Moves an incremental distance from nearestNode to (randomPoint if distance is < Epsilon) or new point
-            perf.rrt_stepFromTo = start_clk(perf.rrt_stepFromTo);
+            start_clk(perf, CLK_RRT_stepFromTo);
             newNode = stepFromTo(nearestNode, randomNode);
-            perf.rrt_stepFromTo = end_clk(perf.rrt_stepFromTo);
+            end_clk(perf, CLK_RRT_stepFromTo);
 
-            perf.rrt_pointCollision = start_clk(perf.rrt_pointCollision);
+            start_clk(perf, CLK_RRT_pointCollision);
             pc_test = pointCollision(newNode, space);
-            perf.rrt_pointCollision = end_clk(perf.rrt_pointCollision);
+            end_clk(perf, CLK_RRT_pointCollision);
 
         } while (pc_test);
         
         // Draw edge
         edge_t newEdge = {.p1 = nearestNode, .p2 = newNode};
 
-        perf.rrt_edgeCollision = start_clk(perf.rrt_edgeCollision);
+        start_clk(perf, CLK_RRT_edgeCollision);
         ec_test = !edgeCollisions(newEdge, space);
-        perf.rrt_edgeCollision = end_clk(perf.rrt_edgeCollision);
+        end_clk(perf, CLK_RRT_edgeCollision);
 
         if (ec_test) {
             // Update graph
@@ -198,48 +196,55 @@ void rrt(graph_t *graph, space_t *space, point_t startNode) {
 
 int main(int argc, char *argv[]) {
 
-    perf.total = start_clk(perf.total);
+    // Allocate and Init Performance Tracking Struct (Loop to silence Valgrind)
+    performance_t* perf = malloc(sizeof(performance_t));
+    for (int i=0; i<NUM_CLKS; i++) {
+        perf->counters[i].temp = 0;
+        perf->counters[i].sum = 0;
+    }
+    
+    // Start Clk
+    start_clk(perf, CLK_TOTAL);
     
     ///////////////////////////////////////////////////////////////////////////
     // SETUP STAGE
     ///////////////////////////////////////////////////////////////////////////
-    perf.setup = start_clk(perf.setup);
-
+    start_clk(perf, CLK_SETUP);
     // Configure Randomness
     srand ((unsigned int) time(NULL)*10000000);
 
     // Init Space
-    perf.setup_space = start_clk(perf.setup_space);
     space_t *space = malloc(sizeof(space_t));
     initObstacles(space);
-    perf.setup_space = end_clk(perf.setup_space);
 
-    // Init Graph
-    perf.setup_graph = start_clk(perf.setup_graph);
+    // Init Graph (with Values to silence Valgrind Errors)
     graph_t *graph = malloc(sizeof(graph_t));
-    perf.setup_graph = end_clk(perf.setup_graph);
+    for (int i=0; i<NUMBUCKETS; i++) graph->existingNodes[i] = 0;
+    for (int i=0; i<NUM_NODES; i++) {
+        graph->edges[i] = (edge_t) {
+            .p1 = (point_t) {.x=0, .y=0, .z=0},
+            .p2 = (point_t) {.x=0, .y=0, .z=0}};
+    }
 
     // Init Start Node
-    perf.setup_start = start_clk(perf.setup_start);
-    point_t startNode;
-    perf.setup_start = end_clk(perf.setup_start);
+    point_t startNode; // = {.x=0, .y=0, .z=0}; // Init with vals to silence valgrnd
     do { startNode = getRandomNode(); } while (pointCollision(startNode, space));
 
 
-    perf.setup = end_clk(perf.setup);
+    end_clk(perf, CLK_SETUP);
     ///////////////////////////////////////////////////////////////////////////
     // Run RRT
     ///////////////////////////////////////////////////////////////////////////
 
-    perf.rrt = start_clk(perf.rrt);
-    rrt(graph, space, startNode);
-    perf.rrt = end_clk(perf.rrt);
+    start_clk(perf, CLK_RRT);
+    rrt(graph, space, startNode, perf);
+    end_clk(perf, CLK_RRT);
     
 
     ///////////////////////////////////////////////////////////////////////////
     // Log Data for Later Analysis
     ///////////////////////////////////////////////////////////////////////////
-    perf.log = start_clk(perf.log);
+    start_clk(perf, CLK_LOG);
 
     // Start node
     FILE *f1 = fopen("cache/startNode.txt", "w");
@@ -255,14 +260,18 @@ int main(int argc, char *argv[]) {
     }
     fclose(f2);
 
+
+    end_clk(perf, CLK_LOG);
+
+    
+    // End Performance Tracking and Print
+    end_clk(perf, CLK_TOTAL);
+    print_performance(perf);
+    
     // Free Memory
     free(graph);
     free(space);
-
-    perf.log = end_clk(perf.log);
-
-    perf.total = end_clk(perf.total);
-    print_performance(perf);
+    free(perf);
 
     return 0;
 }
