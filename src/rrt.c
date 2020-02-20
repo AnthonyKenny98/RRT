@@ -2,21 +2,40 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-02-19 15:31:47
+* @Last Modified time: 2020-02-19 21:53:36
 */
 
 #include "rrt.h"
 #include "performance.h"
 
 // Finds Node in current Graph nearest to New Point
+// point_t findNearestNode(point_t newPoint, graph_t *graph, point_t startNode) {
+//     point_t nearestNode = startNode;
+//     // int bucket = hash(newPoint);
+//     int bucket = hash(startNode);
+//     do {
+//         for (int i=0; i<graph->existingNodes[bucket]; i++) {
+//             if (distance_squared(get_node_from_graph(graph, bucket, i), newPoint) < distance_squared(nearestNode, newPoint)) {
+//                 nearestNode = get_node_from_graph(graph, bucket, i);
+//             }
+//         }
+//         bucket++;
+//         printf("BUCKET = %d\n", bucket);
+//     } while (nearestNode.x == startNode.x && bucket < NUMBUCKETS);
+//     return nearestNode;
+// }
 point_t findNearestNode(point_t newPoint, graph_t *graph, point_t startNode) {
     point_t nearestNode = startNode;
     int bucket = hash(newPoint);
-    for (int i=0; i<graph->existingNodes[bucket]; i++) {
-        if (distance_squared(get_node_from_graph(graph, bucket, i), newPoint) < distance_squared(nearestNode, newPoint)) {
-            nearestNode = get_node_from_graph(graph, bucket, i);
+    int delta = 0;
+    int count = 0;
+    do {
+        for (int i=0; i<graph->existingNodes[bucket+delta]; i++) {
+            if (distance_squared(get_node_from_graph(graph, bucket+delta, i), newPoint) < distance_squared(nearestNode, newPoint)) {
+                nearestNode = get_node_from_graph(graph, bucket+delta, i);
+            }
         }
-    }
+    } while (newPoint.x == nearestNode.x && newPoint.y == nearestNode.y && count < NUMBUCKETS);
     return nearestNode;
 }
 
@@ -156,21 +175,27 @@ void rrt(graph_t *graph, space_t *space, point_t startNode, performance_t* perf)
         // Get Random Point that is not in collision with 
         do {
 
+            // Get Random Node
             start_clk(perf, CLK_RRT_getRandomNode);
+            perf->counters[CLK_RRT_getRandomNode].runs++;
             randomNode = getRandomNode();
             end_clk(perf, CLK_RRT_getRandomNode);
 
-            // Run through all points in graph, returns point nearest to randomPoint
+            // Find Nearest Node in Graph
             start_clk(perf, CLK_RRT_findNearestNode);
+            perf->counters[CLK_RRT_findNearestNode].runs++;
             nearestNode = findNearestNode(randomNode, graph, startNode);
             end_clk(perf, CLK_RRT_findNearestNode);
 
-            // Moves an incremental distance from nearestNode to (randomPoint if distance is < Epsilon) or new point
+            // Extend from Nearest Node to or towards Random Node = New Node
             start_clk(perf, CLK_RRT_stepFromTo);
+            perf->counters[CLK_RRT_stepFromTo].runs++;
             newNode = stepFromTo(nearestNode, randomNode);
             end_clk(perf, CLK_RRT_stepFromTo);
 
+            // Check New Node for collision
             start_clk(perf, CLK_RRT_pointCollision);
+            perf->counters[CLK_RRT_pointCollision].runs++;
             pc_test = pointCollision(newNode, space);
             end_clk(perf, CLK_RRT_pointCollision);
 
@@ -180,6 +205,7 @@ void rrt(graph_t *graph, space_t *space, point_t startNode, performance_t* perf)
         edge_t newEdge = {.p1 = nearestNode, .p2 = newNode};
 
         start_clk(perf, CLK_RRT_edgeCollision);
+        perf->counters[CLK_RRT_edgeCollision].runs++;
         ec_test = !edgeCollisions(newEdge, space);
         end_clk(perf, CLK_RRT_edgeCollision);
 
@@ -201,6 +227,7 @@ int main(int argc, char *argv[]) {
     for (int i=0; i<NUM_CLKS; i++) {
         perf->counters[i].temp = 0;
         perf->counters[i].sum = 0;
+        perf->counters[i].runs = 0;
     }
     
     // Start Clk
@@ -210,6 +237,7 @@ int main(int argc, char *argv[]) {
     // SETUP STAGE
     ///////////////////////////////////////////////////////////////////////////
     start_clk(perf, CLK_SETUP);
+    
     // Configure Randomness
     srand ((unsigned int) time(NULL)*10000000);
 
@@ -239,6 +267,8 @@ int main(int argc, char *argv[]) {
     start_clk(perf, CLK_RRT);
     rrt(graph, space, startNode, perf);
     end_clk(perf, CLK_RRT);
+
+    for (int i=0; i<NUMBUCKETS;i++) printf("bucket %d has %d nodes\n", i, graph->existingNodes[i]);
     
 
     ///////////////////////////////////////////////////////////////////////////

@@ -18,22 +18,32 @@
 typedef struct counter {
     clock_t sum;
     clock_t temp;
+    int runs;
 } counter_t;
 
 typedef struct performance {
     counter_t counters[NUM_CLKS];
 } performance_t;
 
-void print_performance(performance_t* performance) {
-    printf("Overall Total = %ld\n", performance->counters[CLK_TOTAL].sum);
-    printf("    Setup = %ld\n", performance->counters[CLK_SETUP].sum);
-    printf("    RRT   = %ld\n", performance->counters[CLK_RRT].sum);
-    printf("        getRandomNode = %ld\n", performance->counters[CLK_RRT_getRandomNode].sum);
-    printf("        findNearestNode = %ld\n", performance->counters[CLK_RRT_findNearestNode].sum);
-    printf("        stepFromTo = %ld\n", performance->counters[CLK_RRT_stepFromTo].sum);
-    printf("        pointCollision = %ld\n", performance->counters[CLK_RRT_pointCollision].sum);
-    printf("        edgeCollision = %ld\n", performance->counters[CLK_RRT_edgeCollision].sum);
-    printf("    Log   = %ld\n", performance->counters[CLK_LOG].sum);
+void print_performance(performance_t* p) {
+    // Put here for ease
+    int total = p->counters[CLK_TOTAL].sum;
+
+    char* labels[NUM_CLKS] = {
+        "Overall Total = ",
+        "   Setup  =",
+        "   RRT    =",
+        "       getRandomNode   =",
+        "       findNearestNode =",
+        "       stepFromTo      =",
+        "       pointCollision  =",
+        "       edgeCollision   =",
+        "   Log     ="
+    };
+
+    for (int i=0; i<NUM_CLKS; i++) {
+        printf("%s %ld u-seconds (%f %%) runs = %d\n", labels[i], p->counters[i].sum, (float) p->counters[i].sum / total * 100, p->counters[i].runs);
+    }
 }
 
 clock_t clk_milli() {

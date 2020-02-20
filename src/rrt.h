@@ -12,13 +12,7 @@ typedef struct graph {
 
 // Hash based on distance from center
 int hash(point_t p) {
-    point_t center_point = {
-        .x = XDIM/2,
-        .y = YDIM/2,
-        .z = ZDIM/2
-    };
-    double d = distance_squared(p, center_point);
-    return (int) max(round(d - 0.5), 0) % NUMBUCKETS;
+    return ((int) p.x) % NUMBUCKETS;
 }
 
 void add_node_to_graph(graph_t *graph, int i, point_t node) {

@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-12-08 08:10:44
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-01-22 14:47:06
+* @Last Modified time: 2020-02-19 15:33:52
 */
 
 #include "ogm.h"
@@ -10,7 +10,7 @@
 
 void initObstacles(space_t *space) {
     // Open File
-    FILE *f = fopen("cache/ogm.csv","r");
+    FILE *f = fopen("cache/ogm.csv", "r");
     
     // Fill out OGM based on csv
     int temp;

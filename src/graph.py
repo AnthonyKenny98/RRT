@@ -3,7 +3,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-05 20:46:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-01-27 12:36:33
+# @Last Modified time: 2020-02-19 21:57:52
 
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection, Line3DCollection
@@ -13,6 +13,7 @@ import sys
 import os
 
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
+
 
 def rrt_config():
     """Get configuration params from params.h file."""
@@ -59,7 +60,8 @@ def plot_prism(origin, s, ax):
         verts = [list(zip(x, y, z))]
 
         collection = Poly3DCollection(
-            verts, linewidths=1, edgecolors='black', zsort='min', antialiased=False)
+            verts, linewidths=1, edgecolors='black',
+            zsort='min', antialiased=False)
         face_color = "red"
         collection.set_facecolor(face_color)
         ax.add_collection3d(collection)
@@ -74,9 +76,11 @@ def plot_prism(origin, s, ax):
 
 def main(argv):
     """."""
+    print("Retrieving RRT Parameters")
     params = rrt_config()
 
     # Create Figure
+    print("Initializing Plot")
     fig = plt.figure("Configuration Space")
 
     # Init plot in 3D with correct axis limits
@@ -87,23 +91,29 @@ def main(argv):
         zlim=(0, params['ZDIM']))
 
     # Plot start point
+    print("Plotting Start Point")
     with open(DIR_PATH + '/cache/startNode.txt', 'r') as f:
         point = list(csv.reader(f))[0]
     ax.scatter(float(point[0]), float(point[1]), float(point[2]),
                color='blue', marker='*')
 
+    # Plot Edges
+    print("Plotting Edges")
     edges = []
     with open(DIR_PATH + '/cache/path.txt', 'r') as f:
         reader = csv.reader(f)
         for row in reader:
-            edges.append(((float(row[0]), float(row[1]), float(row[2])), (float(row[3]), float(row[4]), float(row[5]))))
+            edges.append(((float(row[0]), float(row[1]), float(row[2])),
+                         (float(row[3]), float(row[4]), float(row[5]))))
 
     collection = Line3DCollection(edges, linewidth=1, color="blue")
     ax.add_collection3d(collection)
 
     # Get Occupancy Grid Map from RRT
+    print("Retrieving OGM from RRT Data")
     ogm = get_ogm(params)
 
+    print("Rendering Occupied Grids")
     # Draw Occupied Grids
     for i in range(int(params['XDIM'] / params['RESOLUTION'])):
         for j in range(int(params['YDIM'] / params['RESOLUTION'])):
@@ -115,15 +125,22 @@ def main(argv):
                     plot_prism(origin, params['RESOLUTION'], ax)
 
     # Update Viewing Angle
+    print("Finalizing")
     ax.view_init(elev=10., azim=5)
+
+    ax.set_xlabel("X Axis")
+    ax.set_ylabel("Y Axis")
+    ax.set_zlabel("Z Axis")
 
     # Show Plot
     if len(argv) != 2:
         plotname = "RRTGraph.png"
     else:
         plotname = argv[1]
-    plt.savefig(plotname)
-    # plt.show()
+    # plt.savefig(plotname)
+    plt.show()
+
+    print("Done")
 
 if __name__ == "__main__":
     main(sys.argv)
