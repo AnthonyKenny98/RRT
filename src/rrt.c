@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-02-19 21:53:36
+* @Last Modified time: 2020-02-21 22:11:33
 */
 
 #include "rrt.h"
@@ -88,27 +88,88 @@ bool checkTwoFaces(point_t A, point_t B, point_t C) {
 
 bool lineIntersectsPrism(edge_t edge, point_t prism_corner) {
 
-    point_t A, B, C;
+    // point_t A, B, C;
 
-    // Z Plane
-    A = edge.p1;
-    B = edge.p2;
-    C = prism_corner;
-    if (checkTwoFaces(A, B, C)) return true;
+    // // Z Plane
+    // A = edge.p1;
+    // B = edge.p2;
+    // C = prism_corner;
+    // if (checkTwoFaces(A, B, C)) return true;
 
-    // Y Plane
-    A = (point_t) {.x = edge.p1.x, .y = edge.p1.z, .z = edge.p1.y};
-    B = (point_t) {.x = edge.p2.x, .y = edge.p2.z, .z = edge.p2.y};
-    C = (point_t) {.x = prism_corner.x, .y = prism_corner.z, .z = prism_corner.y};
-    if (checkTwoFaces(A, B, C)) return true;
+    // // Y Plane
+    // A = (point_t) {.x = edge.p1.x, .y = edge.p1.z, .z = edge.p1.y};
+    // B = (point_t) {.x = edge.p2.x, .y = edge.p2.z, .z = edge.p2.y};
+    // C = (point_t) {.x = prism_corner.x, .y = prism_corner.z, .z = prism_corner.y};
+    // if (checkTwoFaces(A, B, C)) return true;
 
-    // X Plane
-    A = (point_t) {.x = edge.p1.z, .y = edge.p1.y, .z = edge.p1.x};
-    B = (point_t) {.x = edge.p2.z, .y = edge.p2.y, .z = edge.p2.x};
-    C = (point_t) {.x = prism_corner.z, .y = prism_corner.y, .z = prism_corner.z};
-    if (checkTwoFaces(A, B, C)) return true;
+    // // X Plane
+    // A = (point_t) {.x = edge.p1.z, .y = edge.p1.y, .z = edge.p1.x};
+    // B = (point_t) {.x = edge.p2.z, .y = edge.p2.y, .z = edge.p2.x};
+    // C = (point_t) {.x = prism_corner.z, .y = prism_corner.y, .z = prism_corner.z};
+    // if (checkTwoFaces(A, B, C)) return true;
 
-    return false;
+    // return false;
+
+    float greaterThan(float x1, float x2, float x0) {
+        return (x0-x1)/(x2-x1);
+    }
+
+    float lessThan(float x1, float x2, float x0, float X) {
+        return (x0-x1+X)/(x2-x1);
+    }
+
+    float maxFloat3(float x, float y, float z) {
+        float max;
+        // Implementation 1
+        if (x > y) {
+            max = x;
+            if (z > x) max = z;
+        } else {
+            max = y;
+            if (z > y) max = z;
+        }
+        // Implementation 2
+        // if (x > y) {
+        //     max = x;
+        // } else {
+        //     max = y;
+        // }
+        // if (z > max) max = z;
+        return max;
+    }
+
+    float minFloat3(float x, float y, float z) {
+        float min;
+        // Implementation 1
+        if (x < y) {
+            min = x;
+            if (z < x) min = z;
+        } else {
+            min = y;
+            if (z < y) min = z;
+        }
+        // Implementation 2
+        // if (x < y) {
+        //     max = x;
+        // } else {
+        //     max = y;
+        // }
+        // if (z < max) max = z;
+        return min;
+    }
+
+    float max = minFloat3(
+        lessThan(edge.p1.x, edge.p2.x, prism_corner.x, RESOLUTION),
+        lessThan(edge.p1.y, edge.p2.y, prism_corner.y, RESOLUTION),
+        lessThan(edge.p1.z, edge.p2.z, prism_corner.z, RESOLUTION)
+    );
+    float min = maxFloat3(
+        greaterThan(edge.p1.x, edge.p2.x, prism_corner.x),
+        greaterThan(edge.p1.y, edge.p2.y, prism_corner.y),
+        greaterThan(edge.p1.z, edge.p2.z, prism_corner.z)
+    );
+
+    return min < max;
 }
 
 bool edgeCollisions(edge_t edge, space_t *space) {
@@ -116,29 +177,35 @@ bool edgeCollisions(edge_t edge, space_t *space) {
     int min_x, max_x, min_y, max_y, min_z, max_z;
     
     // Get min_p and max_p x
-    if (edge.p1.x < edge.p2.x) {
-        min_x = grid_lookup(edge.p1.x);
-        max_x = grid_lookup(edge.p2.x);
-    } else {
-        min_x = grid_lookup(edge.p2.x);
-        max_x = grid_lookup(edge.p1.x);
-    }
-    // Get min_p and max_p y
-    if (edge.p1.y < edge.p2.y) {
-        min_y = grid_lookup(edge.p1.y);
-        max_y = grid_lookup(edge.p2.y);
-    } else {
-        min_y = grid_lookup(edge.p2.y);
-        max_y = grid_lookup(edge.p1.y);
-    }
-    // Get min_p and max_p z
-    if (edge.p1.z < edge.p2.z) {
-        min_z = grid_lookup(edge.p1.z);
-        max_z = grid_lookup(edge.p2.z);
-    } else {
-        min_z = grid_lookup(edge.p2.z);
-        max_z = grid_lookup(edge.p1.z);
-    }
+    // if (edge.p1.x < edge.p2.x) {
+    //     min_x = grid_lookup(edge.p1.x);
+    //     max_x = grid_lookup(edge.p2.x);
+    // } else {
+    //     min_x = grid_lookup(edge.p2.x);
+    //     max_x = grid_lookup(edge.p1.x);
+    // }
+    // // Get min_p and max_p y
+    // if (edge.p1.y < edge.p2.y) {
+    //     min_y = grid_lookup(edge.p1.y);
+    //     max_y = grid_lookup(edge.p2.y);
+    // } else {
+    //     min_y = grid_lookup(edge.p2.y);
+    //     max_y = grid_lookup(edge.p1.y);
+    // }
+    // // Get min_p and max_p z
+    // if (edge.p1.z < edge.p2.z) {
+    //     min_z = grid_lookup(edge.p1.z);
+    //     max_z = grid_lookup(edge.p2.z);
+    // } else {
+    //     min_z = grid_lookup(edge.p2.z);
+    //     max_z = grid_lookup(edge.p1.z);
+    // }
+    min_x = 0;
+    min_y=0;
+    min_z=0;
+    max_x=XDIM;
+    max_y=YDIM;
+    max_z=ZDIM;
 
 
 
