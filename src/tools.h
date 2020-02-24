@@ -20,9 +20,9 @@
 // Type definitions
 
 typedef struct point {
-    double x;
-    double y;
-    double z;
+    float x;
+    float y;
+    float z;
 } point_t;
 
 typedef struct edge {
@@ -33,12 +33,12 @@ typedef struct edge {
 
 // Function Declarations
 
-// Returns a Random Double. Requires srand(time(NULL)) to be called in main
-double randomDouble(int max);
+// Returns a Random float. Requires srand(time(NULL)) to be called in main
+float randomfloat(int max);
 
 
 // Euclidean Distance between two points
-double distance_squared(point_t p1, point_t p2);
+float distance_squared(point_t p1, point_t p2);
 
 
 // Returns a random node in the state space

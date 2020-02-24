@@ -1,6 +1,8 @@
 #include <time.h>
 #include <stdio.h>
 
+#define NUM_EXPERIMENTS 10
+
 // Define number of performance counters
 #define NUM_CLKS 9
 
@@ -41,8 +43,9 @@ void print_performance(performance_t* p) {
         "   Log     ="
     };
 
+    printf("RRT Ran %d times\n", NUM_EXPERIMENTS);
     for (int i=0; i<NUM_CLKS; i++) {
-        printf("%s %ld u-seconds (%f %%) runs = %d\n", labels[i], p->counters[i].sum, (float) p->counters[i].sum / total * 100, p->counters[i].runs);
+        printf("%s %ld us (%f %%) calls = %d\n", labels[i], p->counters[i].sum, (float) p->counters[i].sum / total * 100, p->counters[i].runs);
     }
 }
 

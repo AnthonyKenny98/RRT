@@ -8,4 +8,4 @@ void initObstacles(space_t *space);
 
 bool pointCollision(point_t node, space_t *space);
 
-int grid_lookup(double val);
+int grid_lookup(float val);

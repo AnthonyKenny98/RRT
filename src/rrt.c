@@ -2,28 +2,12 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-02-21 22:11:33
+* @Last Modified time: 2020-02-23 19:28:36
 */
 
 #include "rrt.h"
 #include "performance.h"
 
-// Finds Node in current Graph nearest to New Point
-// point_t findNearestNode(point_t newPoint, graph_t *graph, point_t startNode) {
-//     point_t nearestNode = startNode;
-//     // int bucket = hash(newPoint);
-//     int bucket = hash(startNode);
-//     do {
-//         for (int i=0; i<graph->existingNodes[bucket]; i++) {
-//             if (distance_squared(get_node_from_graph(graph, bucket, i), newPoint) < distance_squared(nearestNode, newPoint)) {
-//                 nearestNode = get_node_from_graph(graph, bucket, i);
-//             }
-//         }
-//         bucket++;
-//         printf("BUCKET = %d\n", bucket);
-//     } while (nearestNode.x == startNode.x && bucket < NUMBUCKETS);
-//     return nearestNode;
-// }
 point_t findNearestNode(point_t newPoint, graph_t *graph, point_t startNode) {
     point_t nearestNode = startNode;
     int bucket = hash(newPoint);
@@ -48,16 +32,16 @@ point_t stepFromTo(point_t p1, point_t p2) {
     }
     else {
         // Squared Distance between p1 and p2 xy points
-        double xyPlaneDistanceSquared = distance_squared(p1, (point_t) {.x = p2.x, .y = p2.y, .z = 0});
+        float xyPlaneDistanceSquared = distance_squared(p1, (point_t) {.x = p2.x, .y = p2.y, .z = 0});
         
         // Find Phi, the angle between the xyplane and the z axis
-        double phi = atan2((p2.z - p1.z) * (p2.z - p1.z), xyPlaneDistanceSquared);
+        float phi = atan2((p2.z - p1.z) * (p2.z - p1.z), xyPlaneDistanceSquared);
         
         // Find Theta, the angle between the x-axis and the y-axis
-        double theta = atan2((p2.y-p1.y), (p2.x - p1.x));
+        float theta = atan2((p2.y-p1.y), (p2.x - p1.x));
         
         // Find epsilonPrime, the xy distance that the new point should be
-        double epsilonPrime = EPSILON * cos(phi);
+        float epsilonPrime = EPSILON * cos(phi);
         
         // Init New Point
         point_t newPoint;
@@ -68,14 +52,14 @@ point_t stepFromTo(point_t p1, point_t p2) {
     }
 }
 
-double value(double va, double vb, double t) {
+float value(float va, float vb, float t) {
     return (vb - va) * t + va;
 }
 
 bool lineIntersectsPlane(point_t A, point_t B, point_t C) {
-    double t = (C.z - A.z) / (B.z - A.z);
-    double p = value(A.x, B.x, t);
-    double q = value(A.y, B.y, t);
+    float t = (C.z - A.z) / (B.z - A.z);
+    float p = value(A.x, B.x, t);
+    float q = value(A.y, B.y, t);
     return ((C.x <= p) && (p <= C.x + RESOLUTION) && (C.y <= q) && (q <= C.y + RESOLUTION));
 }
 
@@ -128,13 +112,6 @@ bool lineIntersectsPrism(edge_t edge, point_t prism_corner) {
             max = y;
             if (z > y) max = z;
         }
-        // Implementation 2
-        // if (x > y) {
-        //     max = x;
-        // } else {
-        //     max = y;
-        // }
-        // if (z > max) max = z;
         return max;
     }
 
@@ -314,16 +291,13 @@ int main(int argc, char *argv[]) {
 
     // Init Graph (with Values to silence Valgrind Errors)
     graph_t *graph = malloc(sizeof(graph_t));
-    for (int i=0; i<NUMBUCKETS; i++) graph->existingNodes[i] = 0;
-    for (int i=0; i<NUM_NODES; i++) {
-        graph->edges[i] = (edge_t) {
-            .p1 = (point_t) {.x=0, .y=0, .z=0},
-            .p2 = (point_t) {.x=0, .y=0, .z=0}};
-    }
+    initGraph(graph);
 
-    // Init Start Node
-    point_t startNode; // = {.x=0, .y=0, .z=0}; // Init with vals to silence valgrnd
+
+    // Init Start and Goal Node
+    point_t startNode, goalNode;
     do { startNode = getRandomNode(); } while (pointCollision(startNode, space));
+    do { goalNode = getRandomNode(); } while (pointCollision(goalNode, space));
 
 
     end_clk(perf, CLK_SETUP);
@@ -332,11 +306,15 @@ int main(int argc, char *argv[]) {
     ///////////////////////////////////////////////////////////////////////////
 
     start_clk(perf, CLK_RRT);
-    rrt(graph, space, startNode, perf);
-    end_clk(perf, CLK_RRT);
-
-    for (int i=0; i<NUMBUCKETS;i++) printf("bucket %d has %d nodes\n", i, graph->existingNodes[i]);
-    
+    for (int e=0; e<NUM_EXPERIMENTS; e++) {
+        rrt(graph, space, startNode, perf);
+        if (e<NUM_EXPERIMENTS-1) {
+            free(graph);
+            graph = malloc(sizeof(graph_t));
+            initGraph(graph);
+        }
+    }
+    end_clk(perf, CLK_RRT);    
 
     ///////////////////////////////////////////////////////////////////////////
     // Log Data for Later Analysis

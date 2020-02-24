@@ -10,6 +10,15 @@ typedef struct graph {
 
 } graph_t;
 
+void initGraph(graph_t* graph) {
+    for (int i=0; i<NUMBUCKETS; i++) graph->existingNodes[i] = 0;
+    for (int i=0; i<NUM_NODES; i++) {
+        graph->edges[i] = (edge_t) {
+            .p1 = (point_t) {.x=0, .y=0, .z=0},
+            .p2 = (point_t) {.x=0, .y=0, .z=0}};
+    }
+}
+
 // Hash based on distance from center
 int hash(point_t p) {
     return ((int) p.x) % NUMBUCKETS;

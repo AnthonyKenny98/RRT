@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-12-08 08:10:44
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-02-19 15:33:52
+* @Last Modified time: 2020-02-23 09:22:07
 */
 
 #include "ogm.h"
@@ -33,6 +33,6 @@ bool pointCollision(point_t node, space_t *space) {
     return space->ogm[grid_lookup(node.x)][grid_lookup(node.y)][grid_lookup(node.z)];
 }
 
-int grid_lookup(double val) {
+int grid_lookup(float val) {
     return (int) max(round(val - 0.5)/RESOLUTION, 0);
 }

@@ -18,6 +18,5 @@ tools.o: tools.c tools.h
 ogm.o: ogm.c ogm.h
 	$(CC) -c ogm.c -g -lm
 
-
 clean:
 	rm rrt *.o
