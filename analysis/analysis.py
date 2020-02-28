@@ -4,7 +4,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-02 09:44:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-01-15 19:03:40
+# @Last Modified time: 2020-02-27 21:40:01
 
 import csv
 import json
@@ -77,7 +77,7 @@ def setup_test(test):
 
     # "define" keywords
     keywords = ['XDIM', 'YDIM', 'ZDIM',
-                'EPSILON', 'NUM_NODES', 'RESOLUTION']
+                'EPSILON', 'NUM_NODES', 'RESOLUTION', 'NUMBUCKETS']
 
     with open(file_path, 'w') as f:
         for keyword in keywords:
@@ -153,7 +153,8 @@ def run_reports():
 
 def graph_rrt(path):
     """Make 3D graph of RRT."""
-    call("cd ..; python3 {}/src/graph.py {}".format(str(Path(DIR_PATH).parent), path))
+    call("cd ..; python3 {}/src/graph.py {}".format(
+        str(Path(DIR_PATH).parent), path))
 
 
 def compile_report_data():
@@ -207,11 +208,12 @@ def graph_reports(xdims):
 
 
 if __name__ == '__main__':
+    print("WARNING: Have you remembered to set ptrace_scope = 0?")
     choose_test_batch()
     if setup_test_batch():
         if not match_tests('/results'):
             run_tests()
         if not match_tests('/reports'):
             run_reports()
-    xdims = compile_report_data()
-    graph_reports(xdims)
+    # xdims = compile_report_data()
+    # graph_reports(xdims)
