@@ -1,6 +1,7 @@
 #include <time.h>
 #include <stdio.h>
 
+// Number of times RRT is run
 #define NUM_EXPERIMENTS 10
 
 // Define number of performance counters
@@ -16,22 +17,26 @@
 #define CLK_RRT_edgeCollision 6
 
 
+// Counter for each metric
 typedef struct counter {
     clock_t sum;
     clock_t temp;
     int runs;
 } counter_t;
 
+// Performance Struct for holding counters
 typedef struct performance {
     counter_t counters[NUM_CLKS];
 } performance_t;
 
 
+// Benchmark function. 10^9 add iterations
 #define A_BILLION 1000000000
 void run_benchmark() {
     int i = 0; while (i<A_BILLION) i++;
 }
 
+// Print performance
 void print_performance(performance_t* p) {
     
     char* clk_names[NUM_CLKS] = {
@@ -43,12 +48,11 @@ void print_performance(performance_t* p) {
         "edgeCollision",
         "BENCHMARK"
     };
-
-    // printf("RRT Ran %d times\n", NUM_EXPERIMENTS);
     
-    printf("function, time (us), time (%% of RRT), time (%% of benchmark), runs\n");
+    FILE *f = fopen("cache/performance.csv", "w");
+    fprintf(f, "function, time (us), time (%% of RRT), time (%% of benchmark), runs\n");
     for (int i=0; i<NUM_CLKS; i++) {
-        printf(
+        fprintf(f,
             "%s,%ld,%f,%f,%d\n",
             clk_names[i], 
             p->counters[i].sum,
@@ -56,8 +60,10 @@ void print_performance(performance_t* p) {
             (float) p->counters[i].sum / p->counters[CLK_BENCH].sum * 100,
             p->counters[i].runs);
     }
+    fclose(f);
 }
 
+// Timing Functions
 clock_t clk_micro() {
     return clock() / (CLOCKS_PER_SEC / 1000000); // Microseconds
 }
