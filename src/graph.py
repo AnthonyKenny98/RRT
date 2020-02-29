@@ -3,7 +3,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-05 20:46:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-02-19 21:57:52
+# @Last Modified time: 2020-02-28 13:58:37
 
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection, Line3DCollection
@@ -137,8 +137,7 @@ def main(argv):
         plotname = "RRTGraph.png"
     else:
         plotname = argv[1]
-    # plt.savefig(plotname)
-    plt.show()
+    plt.savefig(plotname)
 
     print("Done")
 

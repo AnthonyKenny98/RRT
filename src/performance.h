@@ -30,31 +30,32 @@ typedef struct performance {
 } performance_t;
 
 
-// Benchmark function. 10^9 add iterations
-#define A_BILLION 1000000000
-void run_benchmark() {
-    int i = 0; while (i<A_BILLION) i++;
+// Benchmark function. 10^8 add iterations
+#define BENCHMARK 100000000
+void benchmark() {
+    int i = 0; while (i<BENCHMARK) i++;
 }
 
 // Print performance
 void print_performance(performance_t* p) {
     
     char* clk_names[NUM_CLKS] = {
-        "RRT",
+        "benchmark",
+        "rrt",
         "getRandomNode",
         "findNearestNode",
         "stepFromTo",
-        "pointCollision",
-        "edgeCollision",
-        "BENCHMARK"
+        "pointCollisions",
+        "edgeCollisions",
     };
     
     FILE *f = fopen("cache/performance.csv", "w");
-    fprintf(f, "function, time (us), time (%% of RRT), time (%% of benchmark), runs\n");
+    fprintf(f, "Function Stack,CPU Time:Self,time (us),time (%% of RRT),time (%% of benchmark),runs\n");
     for (int i=0; i<NUM_CLKS; i++) {
         fprintf(f,
-            "%s,%ld,%f,%f,%d\n",
-            clk_names[i], 
+            "%s,%f,%ld,%f,%f,%d\n",
+            clk_names[i],
+            (float) p->counters[i].sum / 1000000,
             p->counters[i].sum,
             (float) p->counters[i].sum / p->counters[CLK_RRT].sum * 100,
             (float) p->counters[i].sum / p->counters[CLK_BENCH].sum * 100,

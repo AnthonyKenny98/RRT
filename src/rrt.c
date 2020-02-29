@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-02-27 20:30:55
+* @Last Modified time: 2020-02-28 16:09:04
 */
 
 #include "rrt.h"
@@ -272,7 +272,7 @@ int main(int argc, char *argv[]) {
     
     // Included to provide a benchmark for different performance analysis
     start_clk(perf, CLK_BENCH);
-    run_benchmark();
+    benchmark();
     end_clk(perf, CLK_BENCH);
     
     ///////////////////////////////////////////////////////////////////////////
