@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-02-28 16:09:04
+* @Last Modified time: 2020-03-01 13:41:08
 */
 
 #include "rrt.h"
@@ -126,13 +126,6 @@ bool lineIntersectsPrism(edge_t edge, point_t prism_corner) {
             min = y;
             if (z < y) min = z;
         }
-        // Implementation 2
-        // if (x < y) {
-        //     max = x;
-        // } else {
-        //     max = y;
-        // }
-        // if (z < max) max = z;
         return min;
     }
 

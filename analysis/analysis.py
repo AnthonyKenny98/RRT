@@ -4,7 +4,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-02 09:44:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-02-28 22:53:54
+# @Last Modified time: 2020-02-29 15:20:55
 
 import csv
 import json
@@ -246,7 +246,7 @@ def graph_reports(data):
         x = data[method]['x']
         ys = data[method]['ys']
 
-        plt.figure(figsize=(15, 10))
+        plt.figure(figsize=(15, 10), frameon=False)
         plt.title("RRT Performance Breakdown")
         plt.xlabel("Number of Nodes in Graph")
         plt.ylabel("% of CPU Time")

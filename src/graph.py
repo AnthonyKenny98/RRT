@@ -3,7 +3,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-05 20:46:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-02-28 13:58:37
+# @Last Modified time: 2020-03-01 13:45:15
 
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection, Line3DCollection
@@ -95,7 +95,7 @@ def main(argv):
     with open(DIR_PATH + '/cache/startNode.txt', 'r') as f:
         point = list(csv.reader(f))[0]
     ax.scatter(float(point[0]), float(point[1]), float(point[2]),
-               color='blue', marker='*')
+               color='red', marker='*')
 
     # Plot Edges
     print("Plotting Edges")
@@ -119,14 +119,14 @@ def main(argv):
         for j in range(int(params['YDIM'] / params['RESOLUTION'])):
             for k in range(int(params['ZDIM'] / params['RESOLUTION'])):
                 if ogm[i][j][k]:
-                    origin = [i * params['RESOLUTION'],
-                              j * params['RESOLUTION'],
+                    origin = [j * params['RESOLUTION'],
+                              i * params['RESOLUTION'],
                               k * params['RESOLUTION']]
                     plot_prism(origin, params['RESOLUTION'], ax)
 
     # Update Viewing Angle
     print("Finalizing")
-    ax.view_init(elev=10., azim=5)
+    ax.view_init(elev=10, azim=90)
 
     ax.set_xlabel("X Axis")
     ax.set_ylabel("Y Axis")
