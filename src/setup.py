@@ -3,7 +3,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-05 11:05:27
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-02-28 13:58:01
+# @Last Modified time: 2020-03-19 07:09:43
 
 import csv
 import os
@@ -21,12 +21,6 @@ def rrt_config():
     with open(DIR_PATH + '/params.h', 'r') as file:
         for line in file:
             params[line.split(' ')[1]] = int(line.split(' ')[2].strip('\n'))
-
-    # Check X and Y Dimension of config are integer divisible by resolution
-    if (params['XDIM'] % params['RESOLUTION'] != 0) or \
-            (params['YDIM'] % params['RESOLUTION'] != 0) or \
-            (params['ZDIM'] % params['RESOLUTION'] != 0):
-        print(colored("WARNING: Resolution Dimension mismatch", 'red'))
 
     return params
 
@@ -60,10 +54,9 @@ def resize_template(params, template):
     ylen = len(list(reader))
     zlen = len(list(reader)[0][0].replace(';', ''))
 
-    # Take Resolution into account
-    XDIM = params['XDIM'] / params['RESOLUTION']
-    YDIM = params['YDIM'] / params['RESOLUTION']
-    ZDIM = params['ZDIM'] / params['RESOLUTION']
+    XDIM = params['XDIM']
+    YDIM = params['YDIM']
+    ZDIM = params['ZDIM']
 
     # Check dimensions are compatible
     if XDIM % xlen != 0:

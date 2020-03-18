@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-12-08 08:10:44
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-02-23 09:22:07
+* @Last Modified time: 2020-03-19 07:04:28
 */
 
 #include "ogm.h"
@@ -14,9 +14,9 @@ void initObstacles(space_t *space) {
     
     // Fill out OGM based on csv
     int temp;
-    for(int i=XDIM/RESOLUTION-1;i>=0;i--){
-        for(int j=0;j<YDIM/RESOLUTION;j++){
-            for (int k=0; k<ZDIM/RESOLUTION;k++) {
+    for(int i=XDIM-1;i>=0;i--){
+        for(int j=0;j<YDIM;j++){
+            for (int k=0; k<ZDIM;k++) {
                 fscanf(f, "%i;", &temp);
                 // Reverse i and j because we read csv opposite way
                 // to the way the grid is set up (cartesian)
@@ -34,5 +34,5 @@ bool pointCollision(point_t node, space_t *space) {
 }
 
 int grid_lookup(float val) {
-    return (int) max(round(val - 0.5)/RESOLUTION, 0);
+    return (int) max(round(val - 0.5), 0);
 }

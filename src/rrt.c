@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-03-01 13:41:08
+* @Last Modified time: 2020-03-19 07:08:08
 */
 
 #include "rrt.h"
@@ -53,47 +53,7 @@ point_t stepFromTo(point_t p1, point_t p2) {
     }
 }
 
-float value(float va, float vb, float t) {
-    return (vb - va) * t + va;
-}
-
-bool lineIntersectsPlane(point_t A, point_t B, point_t C) {
-    float t = (C.z - A.z) / (B.z - A.z);
-    float p = value(A.x, B.x, t);
-    float q = value(A.y, B.y, t);
-    return ((C.x <= p) && (p <= C.x + RESOLUTION) && (C.y <= q) && (q <= C.y + RESOLUTION));
-}
-
-bool checkTwoFaces(point_t A, point_t B, point_t C) {
-    if (lineIntersectsPlane(A, B, C)) return true;
-    C.z += RESOLUTION;
-    if (lineIntersectsPlane(A, B, C)) return true;
-    return false;
-}
-
 bool lineIntersectsPrism(edge_t edge, point_t prism_corner) {
-
-    // point_t A, B, C;
-
-    // // Z Plane
-    // A = edge.p1;
-    // B = edge.p2;
-    // C = prism_corner;
-    // if (checkTwoFaces(A, B, C)) return true;
-
-    // // Y Plane
-    // A = (point_t) {.x = edge.p1.x, .y = edge.p1.z, .z = edge.p1.y};
-    // B = (point_t) {.x = edge.p2.x, .y = edge.p2.z, .z = edge.p2.y};
-    // C = (point_t) {.x = prism_corner.x, .y = prism_corner.z, .z = prism_corner.y};
-    // if (checkTwoFaces(A, B, C)) return true;
-
-    // // X Plane
-    // A = (point_t) {.x = edge.p1.z, .y = edge.p1.y, .z = edge.p1.x};
-    // B = (point_t) {.x = edge.p2.z, .y = edge.p2.y, .z = edge.p2.x};
-    // C = (point_t) {.x = prism_corner.z, .y = prism_corner.y, .z = prism_corner.z};
-    // if (checkTwoFaces(A, B, C)) return true;
-
-    // return false;
 
     float greaterThan(float x1, float x2, float x0) {
         return (x0-x1)/(x2-x1);
@@ -186,7 +146,7 @@ bool edgeCollisions(edge_t edge, space_t *space) {
                 if (space->ogm[i][j][k]) {
 
                     // Set up corner of grid
-                    point_t v = (point_t) {.x = i*RESOLUTION, .y = j*RESOLUTION, .z = k*RESOLUTION};
+                    point_t v = (point_t) {.x = i, .y = j, .z = k};
                     // Check if edge intersects with grid
                     if (lineIntersectsPrism(edge, v)) return true;
                 }

@@ -3,7 +3,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-05 20:46:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-03-01 13:45:15
+# @Last Modified time: 2020-03-19 06:55:16
 
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection, Line3DCollection
@@ -29,11 +29,11 @@ def get_ogm(params):
     ogm = np.zeros((params['XDIM'], params['YDIM'], params['ZDIM']), dtype=int)
     with open(DIR_PATH + '/cache/ogm.csv', 'r') as f:
         reader = list(csv.reader(f))
-        for x in range(int(params['XDIM'] / params['RESOLUTION'])):
+        for x in range(int(params['XDIM'])):
             row = reader[x]
-            for y in range(int(params['YDIM'] / params['RESOLUTION'])):
+            for y in range(int(params['YDIM'])):
                 col = row[y]
-                for z in range(int(params['ZDIM'] / params['RESOLUTION'])):
+                for z in range(int(params['ZDIM'])):
                     elem = col.split(';')[z]
                     ogm[x][y][z] = elem
     return ogm
@@ -115,13 +115,11 @@ def main(argv):
 
     print("Rendering Occupied Grids")
     # Draw Occupied Grids
-    for i in range(int(params['XDIM'] / params['RESOLUTION'])):
-        for j in range(int(params['YDIM'] / params['RESOLUTION'])):
-            for k in range(int(params['ZDIM'] / params['RESOLUTION'])):
+    for i in range(int(params['XDIM'])):
+        for j in range(int(params['YDIM'])):
+            for k in range(int(params['ZDIM'])):
                 if ogm[i][j][k]:
-                    origin = [j * params['RESOLUTION'],
-                              i * params['RESOLUTION'],
-                              k * params['RESOLUTION']]
+                    origin = [j, i, k]
                     plot_prism(origin, params['RESOLUTION'], ax)
 
     # Update Viewing Angle
