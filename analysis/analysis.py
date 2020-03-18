@@ -4,7 +4,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-02 09:44:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-02-29 15:20:55
+# @Last Modified time: 2020-03-19 06:51:10
 
 import csv
 import json
@@ -41,7 +41,10 @@ FUNCTIONS = [
 ]
 
 # Testing Methods
-METHODS = ['vtune', 'performance']
+METHODS = [
+    # 'vtune',
+    'performance'
+]
 
 COLORS = ['#999999', '#4285F4', '#34A853', '#FBBC05', '#EA4335']
 
