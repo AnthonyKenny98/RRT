@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-03-19 07:08:08
+* @Last Modified time: 2020-03-19 08:29:05
 */
 
 #include "rrt.h"
@@ -24,32 +24,47 @@ point_t findNearestNode(point_t newPoint, graph_t *graph, point_t startNode) {
     return nearestNode;
 }
 
+point_t stepTowardsPoint(point_t p1, point_t p2) {
+    // xyzDistanceSquared
+    float xyzDistance = sqrt(distance_squared(p1, p2));
+
+    // Squared Distance between p1 and p2 xy points (use p1.z to keep in same xy plane)
+    float xyDistance = sqrt(distance_squared(p1, (point_t) {.x = p2.x, .y = p2.y, .z = p1.z}));
+    
+    // Find Phi, the angle between the xyplane and the z axis
+    // float phi = atan2((p2.z - p1.z) * (p2.z - p1.z), xyDistanceSquared);
+    float phi = atan2((p2.z - p1.z), xyDistance);
+    
+    // Find Theta, the angle between the x-axis and the y-axis
+    float theta = atan2((p2.y-p1.y), (p2.x - p1.x));
+    
+    // Find xyEpsilon, the xy distance that the new point should be
+    float xyEpsilon = EPSILON * cos(phi);
+    
+    // Init New Point
+    point_t newPoint;
+    newPoint.x = p1.x + xyEpsilon*cos(theta);
+    newPoint.y = p1.y + xyEpsilon*sin(theta);
+    newPoint.z = p1.z + EPSILON*sin(phi);
+    
+    return newPoint;
+}
 
 // Steps from point 1 to point 2 or new point
-point_t stepFromTo(point_t p1, point_t p2) {
+point_t stepFromTo(point_t p1, point_t p2, point_t goalNode) {
     // Epsilon * Epsilon since distance_squared
     if (distance_squared(p1, p2) < (EPSILON * EPSILON)) {
         return p2;
     }
+    // else if (distance_squared(p1, goalNode) < (EPSILON * EPSILON)) {
+    //     return goalNode;
+    // }
     else {
-        // Squared Distance between p1 and p2 xy points
-        float xyPlaneDistanceSquared = distance_squared(p1, (point_t) {.x = p2.x, .y = p2.y, .z = 0});
-        
-        // Find Phi, the angle between the xyplane and the z axis
-        float phi = atan2((p2.z - p1.z) * (p2.z - p1.z), xyPlaneDistanceSquared);
-        
-        // Find Theta, the angle between the x-axis and the y-axis
-        float theta = atan2((p2.y-p1.y), (p2.x - p1.x));
-        
-        // Find epsilonPrime, the xy distance that the new point should be
-        float epsilonPrime = EPSILON * cos(phi);
-        
-        // Init New Point
-        point_t newPoint;
-        newPoint.x = p1.x + epsilonPrime*cos(theta);
-        newPoint.y = p1.y + epsilonPrime*sin(theta);
-        newPoint.z = p1.z + epsilonPrime*tan(phi);
-        return newPoint;
+        if (randomfloat(100.) < GOAL_BIAS) {
+            return stepTowardsPoint(p1, goalNode);
+        } else {
+            return stepTowardsPoint(p1, p2);
+        }
     }
 }
 
@@ -156,7 +171,7 @@ bool edgeCollisions(edge_t edge, space_t *space) {
     return false;
 }
 
-void rrt(graph_t *graph, space_t *space, point_t startNode, performance_t* perf) {
+void rrt(graph_t *graph, space_t *space, point_t startNode, point_t goalNode, performance_t* perf) {
 
     // Start Point
     add_node_to_graph(graph, 0, startNode);
@@ -185,7 +200,7 @@ void rrt(graph_t *graph, space_t *space, point_t startNode, performance_t* perf)
 
             // Extend from Nearest Node to or towards Random Node = New Node
             start_clk(perf, CLK_RRT_stepFromTo);
-            newNode = stepFromTo(nearestNode, randomNode);
+            newNode = stepFromTo(nearestNode, randomNode, goalNode);
             end_clk(perf, CLK_RRT_stepFromTo);
 
             // Check New Node for collision
@@ -247,7 +262,9 @@ int main(int argc, char *argv[]) {
     // Init Start and Goal Node
     point_t startNode, goalNode;
     do { startNode = getRandomNode(); } while (pointCollision(startNode, space));
-    do { goalNode = getRandomNode(); } while (pointCollision(goalNode, space));
+    do { goalNode = getRandomNode(); } while (
+        (pointCollision(goalNode, space)) && (distance_squared(goalNode, startNode) > XDIM / 4)
+    );
 
     ///////////////////////////////////////////////////////////////////////////
     // Run RRT
@@ -258,7 +275,7 @@ int main(int argc, char *argv[]) {
         
         // Run RRT
         start_clk(perf, CLK_RRT);
-        rrt(graph, space, startNode, perf);
+        rrt(graph, space, startNode, goalNode, perf);
         end_clk(perf, CLK_RRT); 
 
         // Reset Graph for next run
@@ -274,19 +291,30 @@ int main(int argc, char *argv[]) {
     ///////////////////////////////////////////////////////////////////////////
 
     // Start node
-    FILE *f1 = fopen("cache/startNode.txt", "w");
-    fprintf(f1, "%f, %f, %f", startNode.x, startNode.y, startNode.z);
-    fclose(f1);
+    FILE *f = fopen("cache/startNode.txt", "w");
+    fprintf(f, "%f, %f, %f", startNode.x, startNode.y, startNode.z);
+    fclose(f);
+
+    // Start node
+    f = fopen("cache/goalNode.txt", "w");
+    fprintf(f, "%f, %f, %f", goalNode.x, goalNode.y, goalNode.z);
+    fclose(f);
 
     // Path
-    FILE *f2 = fopen("cache/path.txt", "w");
+    f = fopen("cache/path.txt", "w");
     for (int i = 0; i<NUM_NODES - 1; i++) {
-        fprintf(f2, "%f, %f, %f, %f, %f, %f\n",
+        fprintf(f, "%f, %f, %f, %f, %f, %f\n",
             graph->edges[i].p1.x, graph->edges[i].p1.y, graph->edges[i].p1.z,
             graph->edges[i].p2.x, graph->edges[i].p2.y, graph->edges[i].p2.z);
     }
-    fclose(f2);
+    fclose(f);
 
+    point_t nearestNode = findNearestNode(goalNode, graph, startNode);
+    if (distance_squared(goalNode, nearestNode) < EPSILON * EPSILON) {
+        printf("SUCCESS: Graph got within EPSILON of goal node.\n");
+    } else {
+        printf("FAILURE: Graph did not get within EPSILON of goal node.\n");
+    }
     
     // End Performance Tracking and Print
     print_performance(perf);

@@ -3,7 +3,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-05 20:46:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-03-19 06:55:16
+# @Last Modified time: 2020-03-19 07:49:57
 
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection, Line3DCollection
@@ -96,6 +96,13 @@ def main(argv):
         point = list(csv.reader(f))[0]
     ax.scatter(float(point[0]), float(point[1]), float(point[2]),
                color='red', marker='*')
+
+    # Plot goal point
+    print("Plotting Goal Point")
+    with open(DIR_PATH + '/cache/goalNode.txt', 'r') as f:
+        point = list(csv.reader(f))[0]
+    ax.scatter(float(point[0]), float(point[1]), float(point[2]),
+               color='green', marker='*')
 
     # Plot Edges
     print("Plotting Edges")
