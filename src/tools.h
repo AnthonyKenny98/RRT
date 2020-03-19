@@ -18,15 +18,21 @@
      _a > _b ? _a : _b; })
 
 // Type definitions
-
+#if _3D
 typedef struct point {
     float x;
     float y;
     float z;
 } point_t;
+#else
+typedef struct point {
+    float x;
+    float y;
+} point_t;
+#endif
 
 typedef struct edge {
-    point_t p1 ;
+    point_t p1;
     point_t p2;
 } edge_t;
 
@@ -43,3 +49,5 @@ float distance_squared(point_t p1, point_t p2);
 
 // Returns a random node in the state space
 point_t getRandomNode();
+
+point_t newPoint();

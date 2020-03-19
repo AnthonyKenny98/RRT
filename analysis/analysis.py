@@ -4,7 +4,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-02 09:44:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-03-19 13:40:37
+# @Last Modified time: 2020-03-20 09:49:19
 
 import csv
 import json
@@ -13,8 +13,8 @@ import numpy as np
 import os
 from pathlib import Path
 import shutil
+import subprocess
 
-from analysisTools import call
 
 # Path in project of this file
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -48,6 +48,11 @@ METHODS = [
 ]
 
 COLORS = ['#999999', '#4285F4', '#34A853', '#FBBC05', '#EA4335']
+
+
+def call(command):
+    """Wrap subprocess call for bash use."""
+    subprocess.call(command, shell=True, executable='/bin/bash')
 
 
 def choose_test_batch():

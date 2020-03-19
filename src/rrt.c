@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-03-19 14:17:54
+* @Last Modified time: 2020-03-20 10:39:19
 */
 
 #include "rrt.h"
@@ -330,6 +330,7 @@ int main(int argc, char *argv[]) {
 
     f = fopen("cache/success.txt", "w");
     fprintf(f, "%d", (int)((float) success/NUM_EXPERIMENTS*100));
+    fclose(f);
     
     // End Performance Tracking and Print
     print_performance(perf);

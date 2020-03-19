@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-11-01 15:45:21
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-02-23 09:22:00
+* @Last Modified time: 2020-03-20 10:41:29
 */
 
 #include "tools.h"
@@ -24,4 +24,8 @@ point_t getRandomNode() {
     return (point_t) {.x = randomfloat(XDIM - 1),
                       .y = randomfloat(YDIM - 1),
                       .z = randomfloat(ZDIM - 1)};
+}
+
+point_t newPoint() {
+    return (point_t) {.x = 0., .y=0., .z=0.};
 }
