@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-03-19 13:37:41
+* @Last Modified time: 2020-03-19 14:17:54
 */
 
 #include "rrt.h"
@@ -123,35 +123,44 @@ bool edgeCollisions(edge_t edge, space_t *space) {
     int min_x, max_x, min_y, max_y, min_z, max_z;
     
     // Get min_p and max_p x
-    // if (edge.p1.x < edge.p2.x) {
-    //     min_x = grid_lookup(edge.p1.x);
-    //     max_x = grid_lookup(edge.p2.x);
-    // } else {
-    //     min_x = grid_lookup(edge.p2.x);
-    //     max_x = grid_lookup(edge.p1.x);
-    // }
-    // // Get min_p and max_p y
-    // if (edge.p1.y < edge.p2.y) {
-    //     min_y = grid_lookup(edge.p1.y);
-    //     max_y = grid_lookup(edge.p2.y);
-    // } else {
-    //     min_y = grid_lookup(edge.p2.y);
-    //     max_y = grid_lookup(edge.p1.y);
-    // }
-    // // Get min_p and max_p z
-    // if (edge.p1.z < edge.p2.z) {
-    //     min_z = grid_lookup(edge.p1.z);
-    //     max_z = grid_lookup(edge.p2.z);
-    // } else {
-    //     min_z = grid_lookup(edge.p2.z);
-    //     max_z = grid_lookup(edge.p1.z);
-    // }
-    min_x = 0;
-    min_y=0;
-    min_z=0;
-    max_x=XDIM;
-    max_y=YDIM;
-    max_z=ZDIM;
+    if (edge.p1.x < edge.p2.x) {
+        min_x = grid_lookup(edge.p1.x);
+    } else {
+        min_x = grid_lookup(edge.p2.x);
+    }
+    // Get min_p and max_p y
+    if (edge.p1.y < edge.p2.y) {
+        min_y = grid_lookup(edge.p1.y);
+    } else {
+        min_y = grid_lookup(edge.p2.y);
+    }
+    // Get min_p and max_p z
+    if (edge.p1.z < edge.p2.z) {
+        min_z = grid_lookup(edge.p1.z);
+    } else {
+        min_z = grid_lookup(edge.p2.z);
+    }
+
+    if (XDIM - EPSILON < min_x) {
+        min_x = XDIM-EPSILON;
+    }
+    if (YDIM - EPSILON < min_y) {
+        min_y = YDIM-EPSILON;
+    }
+    if (ZDIM - EPSILON < min_z) {
+        min_z = ZDIM-EPSILON;
+    }
+
+    max_x=min_x+EPSILON;
+    max_y=min_y+EPSILON;
+    max_z=min_z+EPSILON;
+
+    // min_x = 0;
+    // min_y=0;
+    // min_z=0;
+    // max_x=XDIM;
+    // max_y=YDIM;
+    // max_z=ZDIM;
 
 
 
