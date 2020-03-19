@@ -1,10 +1,9 @@
 echo "PTRACE_SCOPE = $(cat /proc/sys/kernel/yama/ptrace_scope) | 0 Expected"
 
-# Source amplxe-cl tool
-# echo "Sourcing amplxe-cl"
-# cd ~/intel/vtune_amplifier
-# source amplxe-vars.sh
-# echo
+echo "Sourcing amplxe-cl"
+cd ~/intel/vtune_amplifier
+source amplxe-vars.sh
+echo
 
 # Change directory back to projects working directory
 echo "Changing back to project root dir"
@@ -19,8 +18,7 @@ echo
 # Run VTune Hotspots Analysis
 echo "Running Vtune Hotspots Analysis"
 cd src
-./rrt
-# amplxe-cl -collect hotspots -result-dir=$2 `pwd`/rrt
+amplxe-cl -collect hotspots -result-dir=$2 `pwd`/rrt
 cd $1
 
 # Clean Up

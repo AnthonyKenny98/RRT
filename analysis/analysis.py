@@ -4,7 +4,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-02 09:44:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-03-19 06:51:10
+# @Last Modified time: 2020-03-19 13:40:37
 
 import csv
 import json
@@ -12,8 +12,9 @@ from matplotlib import pyplot as plt
 import numpy as np
 import os
 from pathlib import Path
-import subprocess
 import shutil
+
+from analysisTools import call
 
 # Path in project of this file
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
@@ -28,7 +29,7 @@ REQUIRED_FOLDERS = ['results', 'logs', 'reports', 'graphs']
 
 # Parameters for params.h
 PARAMS = ['XDIM', 'YDIM', 'ZDIM',
-          'EPSILON', 'NUM_NODES', 'RESOLUTION', 'NUMBUCKETS']
+          'EPSILON', 'NUM_NODES', 'RESOLUTION', 'NUMBUCKETS', 'GOAL_BIAS']
 
 # Functions that we want to measure
 FUNCTIONS = [
@@ -40,18 +41,13 @@ FUNCTIONS = [
     'edgeCollisions'
 ]
 
-# Testing Methods
+# Testing Methods (vtune added if selected in main)
 METHODS = [
     # 'vtune',
     'performance'
 ]
 
 COLORS = ['#999999', '#4285F4', '#34A853', '#FBBC05', '#EA4335']
-
-
-def call(command):
-    """Wrap subprocess call for bash use."""
-    subprocess.call(command, shell=True, executable='/bin/bash')
 
 
 def choose_test_batch():
@@ -135,6 +131,24 @@ def setup_test(test):
              str(Path(DIR_PATH).parent), template))
 
 
+def run_rrt(test_name):
+    """Run Vtune Collect Hotspots function."""
+    print("    Running RRT")
+    # Find this path's parent directory
+    path = Path(DIR_PATH)
+
+    # Specify Result Directory Name
+    result_dir = batch_path + '/results/' + test_name
+
+    # Specify Log file path
+    log_path = '{}/logs/{}.out'.format(batch_path, test_name)
+    # Command to execute bash script
+    command = 'cd {}; ./runRRT.bash {} {} > {} 2>&1;'.format(
+        DIR_PATH, path.parent, result_dir, log_path)
+    # Execute command
+    call(command)
+
+
 def collect_hotspots(test_name):
     """Run Vtune Collect Hotspots function."""
     print("    Collecting Hotspots")
@@ -174,14 +188,17 @@ def topdown_report(test_name):
     call(command)
 
 
-def run_tests():
+def run_tests(run_vtune):
     """Setup all tests and collect hotspot analysis."""
     # Iterate through tests
     for test in get_tests():
         print("Running Test {}: {}".format(test['TESTNUM'], test['NAME']))
         setup_test(test)
-        collect_hotspots(test['NAME'])
-        topdown_report(test['NAME'])
+        if run_vtune:
+            collect_hotspots(test['NAME'])
+            topdown_report(test['NAME'])
+        else:
+            run_rrt(test['NAME'])
         copy_cache(test['NAME'])
         graph_rrt(batch_path + '/reports/' + test['NAME'] + '/RRT.png')
 
@@ -207,6 +224,9 @@ def compile_report_data():
     """Compile Data from reports of all tests."""
     tests = get_tests()
     for test in tests:
+
+        # PERFORMANCE DATA
+        # ================
 
         # Init Results Dict for test
         test['results'] = {f: {x: 0. for x in METHODS} for f in FUNCTIONS}
@@ -273,10 +293,27 @@ def graph_reports(data):
         plt.savefig(batch_path + "/graphs/" + method)
 
 
+def compile_success_rates():
+    """Compile success rates of each test into csv."""
+    outfile = open(batch_path + '/success_rate.csv', 'w')
+    writer = csv.writer(outfile)
+
+    with open(batch_path + '/tests.csv') as f:
+        reader = csv.reader(f)
+        writer.writerow(next(reader) + ['SUCCESS_RATE'])
+        for row in reader:
+            with open(batch_path + '/reports/' + row[2] + '/cache/success.txt') as s:
+                writer.writerow(list(row) + [s.read()])
+
+
 if __name__ == '__main__':
     print("WARNING: Have you remembered to set ptrace_scope = 0?")
+    run_vtune = (input("Would you like to run Vtune? Must enter 'y': ") == 'y')
+    if run_vtune:
+        METHODS.append('vtune')
     choose_test_batch()
     if setup_test_batch():
-        run_tests()
+        run_tests(run_vtune)
     data = compile_report_data()
     graph_reports(data)
+    compile_success_rates()

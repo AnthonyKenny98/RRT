@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-03-19 08:29:05
+* @Last Modified time: 2020-03-19 13:37:41
 */
 
 #include "rrt.h"
@@ -68,41 +68,41 @@ point_t stepFromTo(point_t p1, point_t p2, point_t goalNode) {
     }
 }
 
+float greaterThan(float x1, float x2, float x0) {
+    return (x0-x1)/(x2-x1);
+}
+
+float lessThan(float x1, float x2, float x0, float X) {
+    return (x0-x1+X)/(x2-x1);
+}
+
+float maxFloat3(float x, float y, float z) {
+    float max;
+    // Implementation 1
+    if (x > y) {
+        max = x;
+        if (z > x) max = z;
+    } else {
+        max = y;
+        if (z > y) max = z;
+    }
+    return max;
+}
+
+float minFloat3(float x, float y, float z) {
+    float min;
+    // Implementation 1
+    if (x < y) {
+        min = x;
+        if (z < x) min = z;
+    } else {
+        min = y;
+        if (z < y) min = z;
+    }
+    return min;
+}
+
 bool lineIntersectsPrism(edge_t edge, point_t prism_corner) {
-
-    float greaterThan(float x1, float x2, float x0) {
-        return (x0-x1)/(x2-x1);
-    }
-
-    float lessThan(float x1, float x2, float x0, float X) {
-        return (x0-x1+X)/(x2-x1);
-    }
-
-    float maxFloat3(float x, float y, float z) {
-        float max;
-        // Implementation 1
-        if (x > y) {
-            max = x;
-            if (z > x) max = z;
-        } else {
-            max = y;
-            if (z > y) max = z;
-        }
-        return max;
-    }
-
-    float minFloat3(float x, float y, float z) {
-        float min;
-        // Implementation 1
-        if (x < y) {
-            min = x;
-            if (z < x) min = z;
-        } else {
-            min = y;
-            if (z < y) min = z;
-        }
-        return min;
-    }
 
     float max = minFloat3(
         lessThan(edge.p1.x, edge.p2.x, prism_corner.x, RESOLUTION),
@@ -171,7 +171,7 @@ bool edgeCollisions(edge_t edge, space_t *space) {
     return false;
 }
 
-void rrt(graph_t *graph, space_t *space, point_t startNode, point_t goalNode, performance_t* perf) {
+int rrt(graph_t *graph, space_t *space, point_t startNode, point_t goalNode, performance_t* perf) {
 
     // Start Point
     add_node_to_graph(graph, 0, startNode);
@@ -226,6 +226,13 @@ void rrt(graph_t *graph, space_t *space, point_t startNode, point_t goalNode, pe
             i--;
         }
     }
+
+    point_t nearestNodeToGoal = findNearestNode(goalNode, graph, startNode);
+    if (distance_squared(goalNode, nearestNodeToGoal) < EPSILON * EPSILON) {
+        return 1;
+    } else {
+        return 0;
+    }
 }
 
 int main(int argc, char *argv[]) {
@@ -261,21 +268,24 @@ int main(int argc, char *argv[]) {
 
     // Init Start and Goal Node
     point_t startNode, goalNode;
-    do { startNode = getRandomNode(); } while (pointCollision(startNode, space));
-    do { goalNode = getRandomNode(); } while (
-        (pointCollision(goalNode, space)) && (distance_squared(goalNode, startNode) > XDIM / 4)
-    );
 
     ///////////////////////////////////////////////////////////////////////////
     // Run RRT
     ///////////////////////////////////////////////////////////////////////////
 
     // Run RRT with same Space for NUM_EXPERIMENTS
+    int success = 0;
     for (int e=0; e<NUM_EXPERIMENTS; e++) {
+
+        // New start and End Node
+        do { startNode = getRandomNode(); } while (pointCollision(startNode, space));
+        do { goalNode = getRandomNode(); } while (
+            (pointCollision(goalNode, space)) && (distance_squared(goalNode, startNode) > XDIM/2)
+        );
         
         // Run RRT
         start_clk(perf, CLK_RRT);
-        rrt(graph, space, startNode, goalNode, perf);
+        success += rrt(graph, space, startNode, goalNode, perf);
         end_clk(perf, CLK_RRT); 
 
         // Reset Graph for next run
@@ -284,7 +294,7 @@ int main(int argc, char *argv[]) {
             graph = malloc(sizeof(graph_t));
             initGraph(graph);
         }
-    }   
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // Log Data for Later Analysis
@@ -309,12 +319,8 @@ int main(int argc, char *argv[]) {
     }
     fclose(f);
 
-    point_t nearestNode = findNearestNode(goalNode, graph, startNode);
-    if (distance_squared(goalNode, nearestNode) < EPSILON * EPSILON) {
-        printf("SUCCESS: Graph got within EPSILON of goal node.\n");
-    } else {
-        printf("FAILURE: Graph did not get within EPSILON of goal node.\n");
-    }
+    f = fopen("cache/success.txt", "w");
+    fprintf(f, "%d", (int)((float) success/NUM_EXPERIMENTS*100));
     
     // End Performance Tracking and Print
     print_performance(perf);
