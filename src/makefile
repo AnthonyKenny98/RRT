@@ -7,20 +7,8 @@
 CC=gcc
 CFLAGS=-D _3D=$(3D)
 
-
-
-rrt: rrt.o tools.o ogm.o
-	$(CC) $(CFLAGS) -o rrt rrt.o tools.o ogm.o -g -lm
-
-
-rrt.o: rrt.c tools.h
-	$(CC) $(CFLAGS) -c rrt.c -g -lm
-
-tools.o: tools.c tools.h
-	$(CC) $(CFLAGS) -c tools.c -g -lm
-
-ogm.o: ogm.c ogm.h
-	$(CC) $(CFLAGS) -c ogm.c -g -lm
+rrt:
+	$(CC) $(CFLAGS) -o rrt rrt.c
 
 clean:
 	rm rrt *.o
