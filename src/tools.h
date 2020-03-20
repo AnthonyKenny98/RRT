@@ -7,59 +7,35 @@
 
 #include "params.h"
 
+
+// Minimum for any type
 #define min(a,b) \
    ({ __typeof__ (a) _a = (a); \
        __typeof__ (b) _b = (b); \
      _a < _b ? _a : _b; })
 
+
+// Maximum for any type
 #define max(a,b) \
    ({ __typeof__ (a) _a = (a); \
        __typeof__ (b) _b = (b); \
      _a > _b ? _a : _b; })
 
-// Type definitions
-#if _3D
-typedef struct point {
-    float x;
-    float y;
-    float z;
-} point_t;
-#else
-typedef struct point {
-    float x;
-    float y;
-} point_t;
-#endif
+float greaterThan(float x1, float x2, float x0) {
+    return (x0-x1)/(x2-x1);
+}
 
-typedef struct edge {
-    point_t p1;
-    point_t p2;
-} edge_t;
+float lessThan(float x1, float x2, float x0, float X) {
+    return (x0-x1+X)/(x2-x1);
+}
+
+// Used by 2D and 3D for determining in which grid a point lies.
+int grid_lookup(float val) {
+    return (int) max(round(val - 0.5), 0);
+}
 
 
-// Function Declarations
-
-// Returns a Random float. Requires srand(time(NULL)) to be called in main
+// Returns a Random float. Requires srand(time(NULL)) to be called in main.
 float randomfloat(int max) {
     return ((float)rand() / (float)RAND_MAX) * max;
-}
-
-
-// Euclidean Distance between two points
-float distance_squared(point_t p1, point_t p2) {
-    return ((p1.x-p2.x)*(p1.x-p2.x)) + 
-           ((p1.y-p2.y)*(p1.y-p2.y)) +
-           ((p1.z-p2.z)*(p1.z-p2.z));
-}
-
-
-// Returns a random node in the state space
-point_t getRandomNode() {
-    return (point_t) {.x = randomfloat(XDIM - 1),
-                      .y = randomfloat(YDIM - 1),
-                      .z = randomfloat(ZDIM - 1)};
-}
-
-point_t newPoint() {
-    return (point_t) {.x = 0., .y=0., .z=0.};
 }

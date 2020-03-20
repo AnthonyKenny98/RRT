@@ -1,9 +1,9 @@
-"""Setup."""
+"""Setup Occupancy Grid Map."""
 # -*- coding: utf-8 -*-
 # @Author: AnthonyKenny98
 # @Date:   2020-01-05 11:05:27
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-03-19 07:09:43
+# @Last Modified time: 2020-03-20 11:48:15
 
 import csv
 import os

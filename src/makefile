@@ -2,13 +2,14 @@
 # export PATH=$PATH:$HOME/Documents/rocket-chip/rocket-tools/bin
 # CC=riscv64-unknown-elf-gcc
 
-3D=1
 
 CC=gcc
-CFLAGS=-D _3D=$(3D)
+3D=-D _3D=1
+2D=-D _3D=0
 
 rrt:
-	$(CC) $(CFLAGS) -o rrt rrt.c
+	$(CC) $(3D) -o rrt3D rrt.c
+	$(CC) $(2D) -o rrt2D rrt.c
 
 clean:
-	rm rrt *.o
+	rm rrt2D rrt3D
