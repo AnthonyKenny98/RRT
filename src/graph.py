@@ -3,7 +3,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-05 20:46:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-03-20 12:27:21
+# @Last Modified time: 2020-03-24 13:05:56
 
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
@@ -101,7 +101,7 @@ def plot_2d():
 
     # Plot start point
     print("Plotting Start Point")
-    with open('cache/startNode.txt', 'r') as f:
+    with open('cache/startPoint.txt', 'r') as f:
         point = list(csv.reader(f))[0]
     ax.scatter(float(point[0]), float(point[1]),
                color=colors[3], marker='*', s=100)
@@ -109,8 +109,8 @@ def plot_2d():
     plt.figtext(.5, .93, 'RRT', fontsize=18, ha='center')
     plt.figtext(
         .5, .89,
-        '{} Nodes in a {} x {} workspace'.format(
-            params["NUM_NODES"], params["XDIM"], params["YDIM"]
+        '{} Points in a {} x {} workspace'.format(
+            params["NUM_POINTS"], params["XDIM"], params["YDIM"]
         ),
         fontsize=10, ha='center')
     plt.savefig("RRTGraph.png")
@@ -150,14 +150,14 @@ def plot_3d(argv):
 
     # Plot start point
     print("Plotting Start Point")
-    with open(DIR_PATH + '/cache/startNode.txt', 'r') as f:
+    with open(DIR_PATH + '/cache/startPoint.txt', 'r') as f:
         point = list(csv.reader(f))[0]
     ax.scatter(float(point[0]), float(point[1]), float(point[2]),
                color='red', marker='*')
 
     # Plot goal point
     print("Plotting Goal Point")
-    with open(DIR_PATH + '/cache/goalNode.txt', 'r') as f:
+    with open(DIR_PATH + '/cache/goalPoint.txt', 'r') as f:
         point = list(csv.reader(f))[0]
     ax.scatter(float(point[0]), float(point[1]), float(point[2]),
                color='green', marker='*')
@@ -239,7 +239,7 @@ def plot_3d(argv):
     print("Done")
 
 if __name__ == "__main__":
-    with open(DIR_PATH + '/cache/startNode.txt', 'r') as f:
+    with open(DIR_PATH + '/cache/startPoint.txt', 'r') as f:
         point = list(csv.reader(f))[0]
     if len(point) == 2:
         plot_2d()

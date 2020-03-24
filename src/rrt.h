@@ -1,19 +1,14 @@
 #ifndef RRT
 #define RRT
 
-// Include correct library for desired dimensionality
-#if _3D
-#include "3D.h"
-#else
-#include "2D.h"
-#endif
+#include "object.h"
 
 ////////////////////////////////////////////////////////////////////////////////
 // Macro Definitions
 ////////////////////////////////////////////////////////////////////////////////
 
-#define START_CACHE "cache/startNode.txt"
-#define GOAL_CACHE "cache/goalNode.txt"
+#define START_CACHE "cache/startPoint.txt"
+#define GOAL_CACHE "cache/goalPoint.txt"
 #define PATH_CACHE "cache/path.txt"
 #define SUCCESS_CACHE "cache/success.txt"
 
@@ -23,10 +18,12 @@
 
 // RRT Graph
 typedef struct graph {
-    point_t nodes[NUMBUCKETS][NUM_NODES];
-    edge_t edges[NUM_NODES];
-    int existingNodes[NUMBUCKETS];
-
+    // point_t points[NUMBUCKETS][NUM_POINTS];
+    // edge_t edges[NUM_POINTS];
+    // int existingPoints[NUMBUCKETS];
+    config_t configs[NUMBUCKETS][NUM_CONFIGS];
+    edge_t edges[NUM_CONFIGS];
+    int existingConfigs[NUMBUCKETS];
 } graph_t;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -35,8 +32,8 @@ typedef struct graph {
 
 // Initialize RRT Graph. Init edges to new point to stop valgrind issues. 
 void initGraph(graph_t* graph) {
-    for (int i=0; i<NUMBUCKETS; i++) graph->existingNodes[i] = 0;
-    for (int i=0; i<NUM_NODES; i++) {
+    for (int i=0; i<NUMBUCKETS; i++) graph->existingConfigs[i] = 0;
+    for (int i=0; i<NUM_CONFIGS; i++) {
         // All these edges get overridden
         graph->edges[i] = (edge_t) {
             .p1 = (point_t) newPoint(),
@@ -45,19 +42,19 @@ void initGraph(graph_t* graph) {
 }
 
 // Hash based on x value, for determining bucket
-int hash(point_t p) {
-    return ((int) p.x) % NUMBUCKETS;
+int hash(config_t c) {
+    return ((int) c.point.x) % NUMBUCKETS;
 }
 
-// Add node to bucket in graph
-void add_node_to_graph(graph_t *graph, point_t node) {
-    int bucket = hash(node);
-    graph->nodes[bucket][graph->existingNodes[bucket]] = node;
-    graph->existingNodes[bucket]++;
+// Add point to bucket in graph
+void add_config_to_graph(graph_t *graph, config_t config) {
+    int bucket = hash(config);
+    graph->configs[bucket][graph->existingConfigs[bucket]] = config;
+    graph->existingConfigs[bucket]++;
 }
 
-point_t get_node_from_graph(graph_t *graph, int bucket, int i) {
-    return graph->nodes[bucket][i];
+config_t get_config_from_graph(graph_t *graph, int bucket, int i) {
+    return graph->configs[bucket][i];
 }
 
 #endif

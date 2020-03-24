@@ -1,10 +1,10 @@
 #include "tools.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-// Type Definitions
+// Space Type Definitions
 ////////////////////////////////////////////////////////////////////////////////
 
-// Point (Configuration)
+// Point
 typedef struct point {
     float x;
     float y;
@@ -23,7 +23,7 @@ typedef struct space {
 
 
 ////////////////////////////////////////////////////////////////////////////////
-// Function Definitions
+// Space Function Definitions
 ////////////////////////////////////////////////////////////////////////////////
 
 // Euclidean Distance between two points
@@ -32,8 +32,8 @@ float distance_squared(point_t p1, point_t p2) {
            ((p1.y-p2.y)*(p1.y-p2.y));
 }
 
-// Return Random Node
-point_t getRandomNode() {
+// Return Random Point
+point_t getRandomPoint() {
     return (point_t) {.x = randomfloat(XDIM - 1),
                       .y = randomfloat(YDIM - 1)};
 }
@@ -65,8 +65,8 @@ void initOGM(space_t *space) {
 }
 
 // Returns true if point collides with obstacle
-bool pointCollision(point_t node, space_t *space) {
-    return space->ogm[grid_lookup(node.x)][grid_lookup(node.y)];
+bool pointCollision(point_t point, space_t *space) {
+    return space->ogm[grid_lookup(point.x)][grid_lookup(point.y)];
 }
 
 // Given two points, step by distance EPSILON from p1 towards p2

@@ -2,86 +2,89 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-03-20 11:46:03
+* @Last Modified time: 2020-03-24 14:21:07
 */
 
 #include "rrt.h"
 #include "performance.h"
 // #include <unistd.h> Dont know why this is here...
 
-point_t findNearestNode(point_t newPoint, graph_t *graph, point_t startNode) {
-    point_t nearestNode = startNode;
-    int bucket = hash(newPoint);
+config_t findNearestConfig(config_t newConfig, graph_t *graph, config_t startConfig) {
+    config_t nearestConfig = startConfig;
+    int bucket = hash(newConfig);
     int delta = 0;
     int count = 0;
     do {
-        for (int i=0; i<graph->existingNodes[bucket+delta]; i++) {
-            if (distance_squared(get_node_from_graph(graph, bucket+delta, i), newPoint) < distance_squared(nearestNode, newPoint)) {
-                nearestNode = get_node_from_graph(graph, bucket+delta, i);
+        for (int i=0; i<graph->existingConfigs[bucket+delta]; i++) {
+            if (distance_squared(get_config_from_graph(graph, bucket+delta, i).point, newConfig.point) < distance_squared(nearestConfig.point, newConfig.point)) {
+                nearestConfig = get_config_from_graph(graph, bucket+delta, i);
             }
         }
-    } while (newPoint.x == nearestNode.x && newPoint.y == nearestNode.y && count < NUMBUCKETS);
-    return nearestNode;
+    } while (newConfig.point.x == nearestConfig.point.x && newConfig.point.y == nearestConfig.point.y && count < NUMBUCKETS);
+    return nearestConfig;
 }
 
 
-// Steps from point 1 to point 2 or new point
-point_t stepFromTo(point_t p1, point_t p2, point_t goalNode) {
+// Steps from config 1 to config 2 or new config
+config_t stepFromTo(config_t c1, config_t c2, config_t goalConfig) {
     // Epsilon * Epsilon since distance_squared
-    if (distance_squared(p1, p2) < (EPSILON * EPSILON)) {
-        return p2;
+    if (distance_squared(c1.point, c2.point) < (EPSILON * EPSILON)) {
+        return c2;
     }
     else {
         if (randomfloat(100.) < GOAL_BIAS) {
-            return stepTowardsPoint(p1, goalNode);
+            return stepTowardsConfig(c1, goalConfig);
         } else {
-            return stepTowardsPoint(p1, p2);
+            return stepTowardsConfig(c1, c2);
         }
     }
 }
 
 
-int rrt(graph_t *graph, space_t *space, point_t startNode, point_t goalNode, performance_t* perf) {
+int rrt(
+    graph_t *graph, space_t *space,
+    config_t startConfig, config_t goalConfig,
+    performance_t* perf) {
 
     // Start Point
-    add_node_to_graph(graph, startNode);
+    add_config_to_graph(graph, startConfig);
 
     // Init points
-    point_t randomNode = startNode;
-    point_t nearestNode;
-    point_t newNode;
+    config_t randomConfig = startConfig;
+    config_t nearestConfig;
+    config_t newConfig;
 
     bool pc_test, ec_test;
 
-    for (int i=1; i<NUM_NODES; i++) {
+    for (int i=1; i<NUM_CONFIGS; i++) {
         
         // Get Random Point that is not in collision with 
         do {
 
-            // Get Random Node
-            start_clk(perf, CLK_RRT_getRandomNode);
-            randomNode = getRandomNode();
-            end_clk(perf, CLK_RRT_getRandomNode);
+            // Get Random Point
+            start_clk(perf, CLK_RRT_getRandomConfig);
+            randomConfig = getRandomConfig();
+            end_clk(perf, CLK_RRT_getRandomConfig);
 
-            // Find Nearest Node in Graph
-            start_clk(perf, CLK_RRT_findNearestNode);
-            nearestNode = findNearestNode(randomNode, graph, startNode);
-            end_clk(perf, CLK_RRT_findNearestNode);
+            // Find Nearest Point in Graph
+            start_clk(perf, CLK_RRT_findNearestConfig);
+            nearestConfig = findNearestConfig(randomConfig, graph, startConfig);
+            end_clk(perf, CLK_RRT_findNearestConfig);
 
-            // Extend from Nearest Node to or towards Random Node = New Node
+            // Extend from Nearest Point to or towards Random Point = New Point
             start_clk(perf, CLK_RRT_stepFromTo);
-            newNode = stepFromTo(nearestNode, randomNode, goalNode);
+            newConfig = stepFromTo(nearestConfig, randomConfig, goalConfig);
             end_clk(perf, CLK_RRT_stepFromTo);
 
-            // Check New Node for collision
-            start_clk(perf, CLK_RRT_pointCollision);
-            pc_test = pointCollision(newNode, space);
-            end_clk(perf, CLK_RRT_pointCollision);
+            // Check New Point for collision
+            start_clk(perf, CLK_RRT_configCollision);
+            pc_test = configCollision(newConfig, space);
+            end_clk(perf, CLK_RRT_configCollision);
 
         } while (pc_test);
         
         // Draw edge
-        edge_t newEdge = {.p1 = nearestNode, .p2 = newNode};
+        edge_t newEdge = {.p1 = nearestConfig.point, .p2 = newConfig.point};
 
         start_clk(perf, CLK_RRT_edgeCollision);
         ec_test = !edgeCollisions(newEdge, space);
@@ -89,7 +92,7 @@ int rrt(graph_t *graph, space_t *space, point_t startNode, point_t goalNode, per
 
         if (ec_test) {
             // Update graph
-            add_node_to_graph(graph, newNode);
+            add_config_to_graph(graph, newConfig);
             graph->edges[i] = newEdge;
         }
         else {
@@ -97,8 +100,8 @@ int rrt(graph_t *graph, space_t *space, point_t startNode, point_t goalNode, per
         }
     }
 
-    point_t nearestNodeToGoal = findNearestNode(goalNode, graph, startNode);
-    if (distance_squared(goalNode, nearestNodeToGoal) < EPSILON * EPSILON) {
+    config_t nearestConfigToGoal = findNearestConfig(goalConfig, graph, startConfig);
+    if (distance_squared(goalConfig.point, nearestConfigToGoal.point) < EPSILON * EPSILON) {
         return 1;
     } else {
         return 0;
@@ -136,8 +139,8 @@ int main(int argc, char *argv[]) {
     initGraph(graph);
 
 
-    // Init Start and Goal Node
-    point_t startNode, goalNode;
+    // Init Start and Goal Point
+    config_t startConfig, goalConfig;
 
     ///////////////////////////////////////////////////////////////////////////
     // Run RRT
@@ -147,15 +150,15 @@ int main(int argc, char *argv[]) {
     int success = 0;
     for (int e=0; e<NUM_EXPERIMENTS; e++) {
 
-        // New start and End Node
-        do { startNode = getRandomNode(); } while (pointCollision(startNode, space));
-        do { goalNode = getRandomNode(); } while (
-            (pointCollision(goalNode, space)) && (distance_squared(goalNode, startNode) > XDIM/2)
+        // New start and End Point
+        do { startConfig = getRandomConfig(); } while (configCollision(startConfig, space));
+        do { goalConfig = getRandomConfig(); } while (
+            (configCollision(goalConfig, space)) && (distance_squared(goalConfig.point, startConfig.point) > XDIM/2)
         );
         
         // Run RRT
         start_clk(perf, CLK_RRT);
-        success += rrt(graph, space, startNode, goalNode, perf);
+        success += rrt(graph, space, startConfig, goalConfig, perf);
         end_clk(perf, CLK_RRT); 
 
         // Reset Graph for next run
@@ -170,19 +173,19 @@ int main(int argc, char *argv[]) {
     // Log Data for Later Analysis
     ///////////////////////////////////////////////////////////////////////////
 
-    // Start node
+    // Start Point
     FILE *f = fopen(START_CACHE, "w");
-    fprint_point(f, startNode);
+    fprint_point(f, startConfig.point);
     fclose(f);
 
-    // Start node
+    // Start Point
     f = fopen(GOAL_CACHE, "w");
-    fprint_point(f, goalNode);
+    fprint_point(f, goalConfig.point);
     fclose(f);
 
     // Path
     f = fopen(PATH_CACHE, "w");
-    for (int i = 0; i<NUM_NODES - 1; i++) {
+    for (int i = 0; i<NUM_CONFIGS - 1; i++) {
         fprint_point(f, graph->edges[i].p1);
         fprintf(f, ",");
         fprint_point(f, graph->edges[i].p2);

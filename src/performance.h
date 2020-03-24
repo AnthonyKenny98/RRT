@@ -10,10 +10,10 @@
 // Define Counter Names
 #define CLK_BENCH 0
 #define CLK_RRT    1
-#define CLK_RRT_getRandomNode 2
-#define CLK_RRT_findNearestNode 3
+#define CLK_RRT_getRandomConfig 2
+#define CLK_RRT_findNearestConfig 3
 #define CLK_RRT_stepFromTo 4
-#define CLK_RRT_pointCollision 5
+#define CLK_RRT_configCollision 5
 #define CLK_RRT_edgeCollision 6
 
 
@@ -42,10 +42,10 @@ void print_performance(performance_t* p) {
     char* clk_names[NUM_CLKS] = {
         "benchmark",
         "rrt",
-        "getRandomNode",
-        "findNearestNode",
+        "getRandomConfig",
+        "findNearestConfig",
         "stepFromTo",
-        "pointCollisions",
+        "configCollisions",
         "edgeCollisions",
     };
     
