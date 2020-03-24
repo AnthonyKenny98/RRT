@@ -108,46 +108,92 @@ bool pointCollision(point_t point, space_t *space) {
     return space->ogm[grid_lookup(point.x)][grid_lookup(point.y)][grid_lookup(point.z)];
 }
 
-float maxFloat3(float x, float y, float z) {
-    float max;
-    // Implementation 1
-    if (x > y) {
-        max = x;
-        if (z > x) max = z;
-    } else {
-        max = y;
-        if (z > y) max = z;
-    }
-    return max;
+// float maxFloat3(float x, float y, float z) {
+//     float max;
+//     // Implementation 1
+//     if (x > y) {
+//         max = x;
+//         if (z > x) max = z;
+//     } else {
+//         max = y;
+//         if (z > y) max = z;
+//     }
+//     return max;
+// }
+
+// float minFloat3(float x, float y, float z) {
+//     float min;
+//     // Implementation 1
+//     if (x < y) {
+//         min = x;
+//         if (z < x) min = z;
+//     } else {
+//         min = y;
+//         if (z < y) min = z;
+//     }
+//     return min;
+// }
+
+// bool lineIntersectsPrism(edge_t edge, point_t prism_corner) {
+
+//     float max = minFloat3(
+//         lessThan(edge.p1.x, edge.p2.x, prism_corner.x, RESOLUTION),
+//         lessThan(edge.p1.y, edge.p2.y, prism_corner.y, RESOLUTION),
+//         lessThan(edge.p1.z, edge.p2.z, prism_corner.z, RESOLUTION)
+//     );
+//     float min = maxFloat3(
+//         greaterThan(edge.p1.x, edge.p2.x, prism_corner.x),
+//         greaterThan(edge.p1.y, edge.p2.y, prism_corner.y),
+//         greaterThan(edge.p1.z, edge.p2.z, prism_corner.z)
+//     );
+
+//     return min < max;
+// }
+
+
+double value(double va, double vb, double t) {
+    return (vb - va) * t + va;
 }
 
-float minFloat3(float x, float y, float z) {
-    float min;
-    // Implementation 1
-    if (x < y) {
-        min = x;
-        if (z < x) min = z;
-    } else {
-        min = y;
-        if (z < y) min = z;
-    }
-    return min;
+bool lineIntersectsPlane(point_t A, point_t B, point_t C) {
+    double t = (C.z - A.z) / (B.z - A.z);
+    double p = value(A.x, B.x, t);
+    double q = value(A.y, B.y, t);
+    return ((C.x <= p) && (p <= C.x + RESOLUTION) && (C.y <= q) && (q <= C.y + RESOLUTION));
 }
+
+bool checkTwoFaces(point_t A, point_t B, point_t C) {
+    if (lineIntersectsPlane(A, B, C)) return true;
+    C.z += RESOLUTION;
+    if (lineIntersectsPlane(A, B, C)) return true;
+    return false;
+}
+
 
 bool lineIntersectsPrism(edge_t edge, point_t prism_corner) {
 
-    float max = minFloat3(
-        lessThan(edge.p1.x, edge.p2.x, prism_corner.x, RESOLUTION),
-        lessThan(edge.p1.y, edge.p2.y, prism_corner.y, RESOLUTION),
-        lessThan(edge.p1.z, edge.p2.z, prism_corner.z, RESOLUTION)
-    );
-    float min = maxFloat3(
-        greaterThan(edge.p1.x, edge.p2.x, prism_corner.x),
-        greaterThan(edge.p1.y, edge.p2.y, prism_corner.y),
-        greaterThan(edge.p1.z, edge.p2.z, prism_corner.z)
-    );
 
-    return min < max;
+    point_t A, B, C;
+
+    // Z Plane
+    A = edge.p1;
+    B = edge.p2;
+    C = prism_corner;
+    if (checkTwoFaces(A, B, C)) return true;
+
+    // Y Plane
+    A = (point_t) {.x = edge.p1.x, .y = edge.p1.z, .z = edge.p1.y};
+    B = (point_t) {.x = edge.p2.x, .y = edge.p2.z, .z = edge.p2.y};
+    C = (point_t) {.x = prism_corner.x, .y = prism_corner.z, .z = prism_corner.y};
+    if (checkTwoFaces(A, B, C)) return true;
+
+    // X Plane
+    A = (point_t) {.x = edge.p1.z, .y = edge.p1.y, .z = edge.p1.x};
+    B = (point_t) {.x = edge.p2.z, .y = edge.p2.y, .z = edge.p2.x};
+    C = (point_t) {.x = prism_corner.z, .y = prism_corner.y, .z = prism_corner.z};
+    if (checkTwoFaces(A, B, C)) return true;
+
+    return false;
 }
 
 bool edgeCollision(edge_t edge, space_t *space) {
