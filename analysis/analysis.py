@@ -4,7 +4,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-02 09:44:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-03-24 14:22:45
+# @Last Modified time: 2020-03-24 15:47:27
 
 import csv
 import json
@@ -29,7 +29,7 @@ REQUIRED_FOLDERS = ['results', 'logs', 'reports', 'graphs']
 
 # Parameters for params.h
 PARAMS = ['XDIM', 'YDIM', 'ZDIM',
-          'EPSILON', 'NUM_CONFIGS', 'RESOLUTION', 'NUMBUCKETS', 'GOAL_BIAS']
+          'EPSILON', 'NUM_CONFIGS', 'RESOLUTION', 'GOAL_BIAS']
 
 # Functions that we want to measure
 FUNCTIONS = [
@@ -259,7 +259,6 @@ def compile_report_data():
         data[m]['ys'] = {
             function: [test['results'][function][m] for test in tests]
             for function in FUNCTIONS}
-    print(str(data))
     return data
 
 

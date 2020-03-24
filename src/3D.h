@@ -24,6 +24,18 @@ typedef struct space {
     bool ogm[XDIM][YDIM][ZDIM];
 } space_t;
 
+// For defining an object
+point_t deltaPoints[8] = {
+    (point_t) {.x=0, .y=0, .z=0},
+    (point_t) {.x=1, .y=0, .z=0},
+    (point_t) {.x=0, .y=1, .z=0},
+    (point_t) {.x=1, .y=1, .z=0},
+    (point_t) {.x=0, .y=0, .z=1},
+    (point_t) {.x=1, .y=0, .z=1},
+    (point_t) {.x=0, .y=1, .z=1},
+    (point_t) {.x=1, .y=1, .z=1}
+};
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Function Definitions
@@ -138,7 +150,7 @@ bool lineIntersectsPrism(edge_t edge, point_t prism_corner) {
     return min < max;
 }
 
-bool edgeCollisions(edge_t edge, space_t *space) {
+bool edgeCollision(edge_t edge, space_t *space) {
     
     int min_x, max_x, min_y, max_y, min_z, max_z;
     

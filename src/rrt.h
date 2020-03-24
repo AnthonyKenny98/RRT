@@ -18,12 +18,9 @@
 
 // RRT Graph
 typedef struct graph {
-    // point_t points[NUMBUCKETS][NUM_POINTS];
-    // edge_t edges[NUM_POINTS];
-    // int existingPoints[NUMBUCKETS];
-    config_t configs[NUMBUCKETS][NUM_CONFIGS];
+    config_t configs[NUM_CONFIGS];
     edge_t edges[NUM_CONFIGS];
-    int existingConfigs[NUMBUCKETS];
+    int existingConfigs;
 } graph_t;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -32,7 +29,7 @@ typedef struct graph {
 
 // Initialize RRT Graph. Init edges to new point to stop valgrind issues. 
 void initGraph(graph_t* graph) {
-    for (int i=0; i<NUMBUCKETS; i++) graph->existingConfigs[i] = 0;
+    graph->existingConfigs = 0;
     for (int i=0; i<NUM_CONFIGS; i++) {
         // All these edges get overridden
         graph->edges[i] = (edge_t) {
@@ -41,20 +38,10 @@ void initGraph(graph_t* graph) {
     }
 }
 
-// Hash based on x value, for determining bucket
-int hash(config_t c) {
-    return ((int) c.point.x) % NUMBUCKETS;
-}
-
-// Add point to bucket in graph
+// Add point to graph
 void add_config_to_graph(graph_t *graph, config_t config) {
-    int bucket = hash(config);
-    graph->configs[bucket][graph->existingConfigs[bucket]] = config;
-    graph->existingConfigs[bucket]++;
-}
-
-config_t get_config_from_graph(graph_t *graph, int bucket, int i) {
-    return graph->configs[bucket][i];
+    graph->configs[graph->existingConfigs] = config;
+    graph->existingConfigs++;
 }
 
 #endif

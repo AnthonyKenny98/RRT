@@ -3,7 +3,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-05 20:46:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-03-24 13:05:56
+# @Last Modified time: 2020-03-24 14:55:29
 
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
@@ -110,7 +110,7 @@ def plot_2d():
     plt.figtext(
         .5, .89,
         '{} Points in a {} x {} workspace'.format(
-            params["NUM_POINTS"], params["XDIM"], params["YDIM"]
+            params["NUM_CONFIGS"], params["XDIM"], params["YDIM"]
         ),
         fontsize=10, ha='center')
     plt.savefig("RRTGraph.png")

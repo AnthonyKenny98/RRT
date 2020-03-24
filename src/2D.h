@@ -21,7 +21,13 @@ typedef struct space {
     bool ogm[XDIM][YDIM];
 } space_t;
 
-
+// For defining an object
+point_t deltaPoints[4] = {
+    (point_t) {.x=0, .y=0},
+    (point_t) {.x=1, .y=0},
+    (point_t) {.x=0, .y=1},
+    (point_t) {.x=1, .y=1}
+};
 ////////////////////////////////////////////////////////////////////////////////
 // Space Function Definitions
 ////////////////////////////////////////////////////////////////////////////////
@@ -101,7 +107,7 @@ bool LineIntersectsLine(edge_t e1, edge_t e2) {
     return true;
 }
 
-bool edgeCollisions(edge_t edge, space_t *space) {
+bool edgeCollision(edge_t edge, space_t *space) {
     for (int i=0; i<XDIM/RESOLUTION; i++) {
         for (int j=0; j<YDIM/RESOLUTION; j++) {
             if (space->ogm[i][j]) {

@@ -2,33 +2,29 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-03-24 14:21:07
+* @Last Modified time: 2020-03-24 15:44:11
 */
 
 #include "rrt.h"
 #include "performance.h"
 // #include <unistd.h> Dont know why this is here...
 
+// Return the nearest configuration in the graph to a new configuration
+// Based on distance between origin points
 config_t findNearestConfig(config_t newConfig, graph_t *graph, config_t startConfig) {
     config_t nearestConfig = startConfig;
-    int bucket = hash(newConfig);
-    int delta = 0;
-    int count = 0;
-    do {
-        for (int i=0; i<graph->existingConfigs[bucket+delta]; i++) {
-            if (distance_squared(get_config_from_graph(graph, bucket+delta, i).point, newConfig.point) < distance_squared(nearestConfig.point, newConfig.point)) {
-                nearestConfig = get_config_from_graph(graph, bucket+delta, i);
-            }
+    for (int i=0; i<graph->existingConfigs; i++) {
+        if (config_distance_squared(graph->configs[i], newConfig) < config_distance_squared(nearestConfig, newConfig)) {
+            nearestConfig = graph->configs[i];
         }
-    } while (newConfig.point.x == nearestConfig.point.x && newConfig.point.y == nearestConfig.point.y && count < NUMBUCKETS);
+        }
     return nearestConfig;
 }
-
 
 // Steps from config 1 to config 2 or new config
 config_t stepFromTo(config_t c1, config_t c2, config_t goalConfig) {
     // Epsilon * Epsilon since distance_squared
-    if (distance_squared(c1.point, c2.point) < (EPSILON * EPSILON)) {
+    if (config_distance_squared(c1, c2) < (EPSILON * EPSILON)) {
         return c2;
     }
     else {
@@ -46,15 +42,15 @@ int rrt(
     config_t startConfig, config_t goalConfig,
     performance_t* perf) {
 
-    // Start Point
+    // Start configuration to graph
     add_config_to_graph(graph, startConfig);
 
-    // Init points
+    // Init configuration
     config_t randomConfig = startConfig;
-    config_t nearestConfig;
-    config_t newConfig;
+    config_t nearestConfig, newConfig;
 
-    bool pc_test, ec_test;
+    // Collision Tests
+    bool cc_test, ec_test;
 
     for (int i=1; i<NUM_CONFIGS; i++) {
         
@@ -78,21 +74,19 @@ int rrt(
 
             // Check New Point for collision
             start_clk(perf, CLK_RRT_configCollision);
-            pc_test = configCollision(newConfig, space);
+            cc_test = configCollision(newConfig, space);
             end_clk(perf, CLK_RRT_configCollision);
 
-        } while (pc_test);
-        
-        // Draw edge
-        edge_t newEdge = {.p1 = nearestConfig.point, .p2 = newConfig.point};
+        } while (cc_test);
 
         start_clk(perf, CLK_RRT_edgeCollision);
-        ec_test = !edgeCollisions(newEdge, space);
+        ec_test = !connectConfigs(nearestConfig, newConfig, space);
         end_clk(perf, CLK_RRT_edgeCollision);
 
         if (ec_test) {
             // Update graph
             add_config_to_graph(graph, newConfig);
+            edge_t newEdge = drawEdge(nearestConfig, newConfig);
             graph->edges[i] = newEdge;
         }
         else {
@@ -101,7 +95,7 @@ int rrt(
     }
 
     config_t nearestConfigToGoal = findNearestConfig(goalConfig, graph, startConfig);
-    if (distance_squared(goalConfig.point, nearestConfigToGoal.point) < EPSILON * EPSILON) {
+    if (config_distance_squared(goalConfig, nearestConfigToGoal) < EPSILON * EPSILON) {
         return 1;
     } else {
         return 0;
@@ -153,7 +147,7 @@ int main(int argc, char *argv[]) {
         // New start and End Point
         do { startConfig = getRandomConfig(); } while (configCollision(startConfig, space));
         do { goalConfig = getRandomConfig(); } while (
-            (configCollision(goalConfig, space)) && (distance_squared(goalConfig.point, startConfig.point) > XDIM/2)
+            (configCollision(goalConfig, space)) && (config_distance_squared(goalConfig, startConfig) > XDIM/2)
         );
         
         // Run RRT
@@ -175,12 +169,12 @@ int main(int argc, char *argv[]) {
 
     // Start Point
     FILE *f = fopen(START_CACHE, "w");
-    fprint_point(f, startConfig.point);
+    fprint_point(f, startConfig.point[ORIGIN]);
     fclose(f);
 
     // Start Point
     f = fopen(GOAL_CACHE, "w");
-    fprint_point(f, goalConfig.point);
+    fprint_point(f, goalConfig.point[ORIGIN]);
     fclose(f);
 
     // Path
