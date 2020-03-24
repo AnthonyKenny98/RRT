@@ -18,7 +18,7 @@ echo
 # Run VTune Hotspots Analysis
 echo "Running Vtune Hotspots Analysis"
 cd src
-amplxe-cl -collect hotspots -result-dir=$2 `pwd`/rrt
+amplxe-cl -collect hotspots -result-dir=$2 `pwd`/rrt3D
 cd $1
 
 # Clean Up

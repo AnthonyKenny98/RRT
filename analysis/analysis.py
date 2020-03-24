@@ -4,7 +4,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-02 09:44:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-03-20 09:49:19
+# @Last Modified time: 2020-03-24 15:47:27
 
 import csv
 import json
@@ -29,15 +29,15 @@ REQUIRED_FOLDERS = ['results', 'logs', 'reports', 'graphs']
 
 # Parameters for params.h
 PARAMS = ['XDIM', 'YDIM', 'ZDIM',
-          'EPSILON', 'NUM_NODES', 'RESOLUTION', 'NUMBUCKETS', 'GOAL_BIAS']
+          'EPSILON', 'NUM_CONFIGS', 'RESOLUTION', 'GOAL_BIAS']
 
 # Functions that we want to measure
 FUNCTIONS = [
     # 'benchmark',
-    'getRandomNode',
-    'findNearestNode',
+    'getRandomConfig',
+    'findNearestConfig',
     'stepFromTo',
-    'pointCollisions',
+    'configCollisions',
     'edgeCollisions'
 ]
 
@@ -252,14 +252,13 @@ def compile_report_data():
                         test['results'][func][m] = float(row["CPU Time:Self"])
 
     # Organise data into x and y(series)
-    xname = 'NUM_NODES'
+    xname = 'NUM_CONFIGS'
     data = {m: {} for m in METHODS}
     for m in METHODS:
         data[m]['x'] = [test[xname] for test in tests]
         data[m]['ys'] = {
             function: [test['results'][function][m] for test in tests]
             for function in FUNCTIONS}
-    # print(str(data))
     return data
 
 

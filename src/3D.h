@@ -1,10 +1,12 @@
 #include "tools.h"
 
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // Type Definitions
 ////////////////////////////////////////////////////////////////////////////////
 
-// Point (Configuration)
+// Point 
 typedef struct point {
     float x;
     float y;
@@ -22,6 +24,18 @@ typedef struct space {
     bool ogm[XDIM][YDIM][ZDIM];
 } space_t;
 
+// For defining an object
+point_t deltaPoints[8] = {
+    (point_t) {.x=0, .y=0, .z=0},
+    (point_t) {.x=1, .y=0, .z=0},
+    (point_t) {.x=0, .y=1, .z=0},
+    (point_t) {.x=1, .y=1, .z=0},
+    (point_t) {.x=0, .y=0, .z=1},
+    (point_t) {.x=1, .y=0, .z=1},
+    (point_t) {.x=0, .y=1, .z=1},
+    (point_t) {.x=1, .y=1, .z=1}
+};
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Function Definitions
@@ -34,8 +48,8 @@ float distance_squared(point_t p1, point_t p2) {
            ((p1.z-p2.z)*(p1.z-p2.z));
 }
 
-// Return Random Node
-point_t getRandomNode() {
+// Return Random Point
+point_t getRandomPoint() {
     return (point_t) {.x = randomfloat(XDIM - 1),
                       .y = randomfloat(YDIM - 1),
                       .z = randomfloat(ZDIM - 1)};
@@ -90,8 +104,8 @@ point_t stepTowardsPoint(point_t p1, point_t p2) {
     return newPoint;
 }
 
-bool pointCollision(point_t node, space_t *space) {
-    return space->ogm[grid_lookup(node.x)][grid_lookup(node.y)][grid_lookup(node.z)];
+bool pointCollision(point_t point, space_t *space) {
+    return space->ogm[grid_lookup(point.x)][grid_lookup(point.y)][grid_lookup(point.z)];
 }
 
 float maxFloat3(float x, float y, float z) {
@@ -136,7 +150,7 @@ bool lineIntersectsPrism(edge_t edge, point_t prism_corner) {
     return min < max;
 }
 
-bool edgeCollisions(edge_t edge, space_t *space) {
+bool edgeCollision(edge_t edge, space_t *space) {
     
     int min_x, max_x, min_y, max_y, min_z, max_z;
     

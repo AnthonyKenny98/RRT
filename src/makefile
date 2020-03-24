@@ -6,10 +6,11 @@
 CC=gcc
 3D=-D _3D=1
 2D=-D _3D=0
+OBJECT=-D _OBJECT=1
 
 rrt:
-	$(CC) $(3D) -o rrt3D rrt.c
-	$(CC) $(2D) -o rrt2D rrt.c
+	$(CC) $(3D) $(OBJECT) -o rrt3D rrt.c
+	$(CC) $(2D) $(OBJECT) -o rrt2D rrt.c
 
 clean:
 	rm rrt2D rrt3D
