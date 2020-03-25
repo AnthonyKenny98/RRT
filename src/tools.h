@@ -7,6 +7,14 @@
 
 #include "params.h"
 
+#if EPSILON == 1
+  #define SEGMENTS 10
+#elif EPSILON == 2
+  #define SEGMENTS 20
+#else
+  #define SEGMENTS 40
+#endif
+
 
 // Minimum for any type
 #define min(a,b) \

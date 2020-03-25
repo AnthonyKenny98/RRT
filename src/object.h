@@ -17,10 +17,8 @@
 
 // Defines the size of the object. 
 // Cannot be larger than resolution (one grid) of graph
-#if _OBJECT
-    #define OBJECT_SIZE 0.2
-    #define ORIGIN 0
-#endif
+#define OBJECT_SIZE 1
+#define ORIGIN 0
 
 ////////////////////////////////////////////////////////////////////////////////
 // Type Definitions
@@ -91,7 +89,7 @@ edge_t drawEdge(config_t c1, config_t c2) {
 bool connectConfigs(config_t c1, config_t c2, space_t* space) {
     edge_t edge;
     for (int i=0; i<NUM_CONFIG_VERTICES; i++) {
-        edge = (edge_t) {.p1 = c1.point[i], .p2 = c2. point[i]};
+        edge = (edge_t) {.p1 = c1.point[i], .p2 = c2.point[i]};
         if (edgeCollision(edge, space)) return true;
     }
     return false;

@@ -3,7 +3,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-05 20:46:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-03-24 14:55:29
+# @Last Modified time: 2020-03-25 12:49:08
 
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
@@ -105,6 +105,12 @@ def plot_2d():
         point = list(csv.reader(f))[0]
     ax.scatter(float(point[0]), float(point[1]),
                color=colors[3], marker='*', s=100)
+
+    print("Plotting Goal Point")
+    with open('cache/goalPoint.txt', 'r') as f:
+        point = list(csv.reader(f))[0]
+    ax.scatter(float(point[0]), float(point[1]),
+               color='green', marker='*', s=100)
 
     plt.figtext(.5, .93, 'RRT', fontsize=18, ha='center')
     plt.figtext(
