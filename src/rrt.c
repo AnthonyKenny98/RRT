@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-03-25 13:26:00
+* @Last Modified time: 2020-03-25 16:42:34
 */
 
 #include "rrt.h"
@@ -198,8 +198,6 @@ int main(int argc, char *argv[]) {
     free(graph);
     free(space);
     free(perf);
-
-    printf("%d", SEGMENTS);
 
     return 0;
 }

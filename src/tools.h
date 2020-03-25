@@ -7,8 +7,6 @@
 
 #include "params.h"
 
-#define SEGMENTS EPSILON + 1
-
 
 // Minimum for any type
 #define min(a,b) \

@@ -84,33 +84,27 @@ point_t stepTowardsPoint(point_t p1, point_t p2) {
     return newPoint;
 
 }
-// Return midpoint of a given edge
-float splitDist(float p1, float p2) {
-    return (p2 - p1) / SEGMENTS;
-}
 
-// Return true if point lies within grid, else false
-bool pointInGrid(point_t point, point_t grid) {
-    return (
-        (grid.x <= point.x && point.x < grid.x + RESOLUTION) &&
-        (grid.y <= point.y && point.y < grid.y + RESOLUTION)
-    );
-}
+bool LineIntersectsLine(edge_t e1, edge_t e2) {
+    double q = (e1.p1.y - e2.p1.y) * (e2.p2.x - e2.p1.x) - (e1.p1.x - e2.p1.x) * (e2.p2.y - e2.p1.y);
+    double d = (e1.p2.x - e1.p1.x) * (e2.p2.y - e2.p1.y) - (e1.p2.y - e1.p1.y) * (e2.p2.x - e2.p1.x);
 
-// Return true if edge intersects given grid, else false
-bool segmentIntersectsGrid(edge_t edge, point_t grid) {
-    float x_delta = splitDist(edge.p1.x, edge.p2.x);
-    float y_delta = splitDist(edge.p1.y, edge.p2.y);
-    
-    bool collision = false;
-    for (int i=0; i<=SEGMENTS; i++) {
-        if (pointInGrid(
-            (point_t) {
-                .x = edge.p1.x + x_delta * i,
-                .y = edge.p1.y + y_delta * i
-            }, grid)) collision = true;
+    if( d == 0 )
+    {
+        return false;
     }
-    return collision;
+
+    double r = q / d;
+
+    q = (e1.p1.y - e2.p1.y) * (e1.p2.x - e1.p1.x) - (e1.p1.x - e2.p1.x) * (e1.p2.y - e1.p1.y);
+    double s = q / d;
+
+    if( r < 0 || r > 1 || s < 0 || s > 1 )
+    {
+        return false;
+    }
+
+    return true;
 }
 
 bool edgeCollision(edge_t edge, space_t *space) {
@@ -145,14 +139,22 @@ bool edgeCollision(edge_t edge, space_t *space) {
     // max_x=XDIM;
     // max_y=YDIM;
 
-    for (int i=min_x; i <= max_x; i++) {
-        for (int j=min_y; j<=max_y; j++) {
+    for (int i=min_x; i<max_x; i++) {
+        for (int j=min_y; j<max_y; j++) {
             if (space->ogm[i][j]) {
 
-                // Set up corner of grid
-                point_t v = (point_t) {.x = i, .y = j};
-                // Check if edge intersects with grid
-                if (segmentIntersectsGrid(edge, v)) return true;
+                // Set up edges of grid
+                point_t v1 = (point_t) {.x = i*RESOLUTION, .y = j*RESOLUTION};
+                point_t v2 = (point_t) {.x = i*RESOLUTION, .y = j*RESOLUTION + RESOLUTION};
+                point_t v3 = (point_t) {.x = i*RESOLUTION + RESOLUTION, .y = j*RESOLUTION + RESOLUTION};
+                point_t v4 = (point_t) {.x = i*RESOLUTION + RESOLUTION, .y = j*RESOLUTION};
+                
+                if (LineIntersectsLine(edge, (edge_t) {.p1 = v1, .p2 = v2}) ||
+                    LineIntersectsLine(edge, (edge_t) {.p1 = v2, .p2 = v3}) ||
+                    LineIntersectsLine(edge, (edge_t) {.p1 = v3, .p2 = v4}) ||
+                    LineIntersectsLine(edge, (edge_t) {.p1 = v4, .p2 = v1})) {
+                    return true;
+                }
             }
         }
     }
