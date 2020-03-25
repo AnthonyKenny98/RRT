@@ -1,6 +1,6 @@
 #include "tools.h"
 
-
+#define SEGMENTS EPSILON
 
 ////////////////////////////////////////////////////////////////////////////////
 // Type Definitions
@@ -108,92 +108,36 @@ bool pointCollision(point_t point, space_t *space) {
     return space->ogm[grid_lookup(point.x)][grid_lookup(point.y)][grid_lookup(point.z)];
 }
 
-// float maxFloat3(float x, float y, float z) {
-//     float max;
-//     // Implementation 1
-//     if (x > y) {
-//         max = x;
-//         if (z > x) max = z;
-//     } else {
-//         max = y;
-//         if (z > y) max = z;
-//     }
-//     return max;
-// }
-
-// float minFloat3(float x, float y, float z) {
-//     float min;
-//     // Implementation 1
-//     if (x < y) {
-//         min = x;
-//         if (z < x) min = z;
-//     } else {
-//         min = y;
-//         if (z < y) min = z;
-//     }
-//     return min;
-// }
-
-// bool lineIntersectsPrism(edge_t edge, point_t prism_corner) {
-
-//     float max = minFloat3(
-//         lessThan(edge.p1.x, edge.p2.x, prism_corner.x, RESOLUTION),
-//         lessThan(edge.p1.y, edge.p2.y, prism_corner.y, RESOLUTION),
-//         lessThan(edge.p1.z, edge.p2.z, prism_corner.z, RESOLUTION)
-//     );
-//     float min = maxFloat3(
-//         greaterThan(edge.p1.x, edge.p2.x, prism_corner.x),
-//         greaterThan(edge.p1.y, edge.p2.y, prism_corner.y),
-//         greaterThan(edge.p1.z, edge.p2.z, prism_corner.z)
-//     );
-
-//     return min < max;
-// }
-
-
-double value(double va, double vb, double t) {
-    return (vb - va) * t + va;
+// Return midpoint of a given edge
+float splitDist(float p1, float p2) {
+    return (p2 - p1) / SEGMENTS;
 }
 
-bool lineIntersectsPlane(point_t A, point_t B, point_t C) {
-    double t = (C.z - A.z) / (B.z - A.z);
-    double p = value(A.x, B.x, t);
-    double q = value(A.y, B.y, t);
-    return ((C.x <= p) && (p <= C.x + RESOLUTION) && (C.y <= q) && (q <= C.y + RESOLUTION));
+// Return true if point lies within grid, else false
+bool pointInGrid(point_t point, point_t grid) {
+    return (
+        (grid.x <= point.x && point.x <= grid.x + RESOLUTION) &&
+        (grid.y <= point.y && point.y <= grid.y + RESOLUTION) &&
+        (grid.z <= point.z && point.z <= grid.z + RESOLUTION)
+    );
 }
 
-bool checkTwoFaces(point_t A, point_t B, point_t C) {
-    if (lineIntersectsPlane(A, B, C)) return true;
-    C.z += RESOLUTION;
-    if (lineIntersectsPlane(A, B, C)) return true;
-    return false;
-}
-
-
-bool lineIntersectsPrism(edge_t edge, point_t prism_corner) {
-
-
-    point_t A, B, C;
-
-    // Z Plane
-    A = edge.p1;
-    B = edge.p2;
-    C = prism_corner;
-    if (checkTwoFaces(A, B, C)) return true;
-
-    // Y Plane
-    A = (point_t) {.x = edge.p1.x, .y = edge.p1.z, .z = edge.p1.y};
-    B = (point_t) {.x = edge.p2.x, .y = edge.p2.z, .z = edge.p2.y};
-    C = (point_t) {.x = prism_corner.x, .y = prism_corner.z, .z = prism_corner.y};
-    if (checkTwoFaces(A, B, C)) return true;
-
-    // X Plane
-    A = (point_t) {.x = edge.p1.z, .y = edge.p1.y, .z = edge.p1.x};
-    B = (point_t) {.x = edge.p2.z, .y = edge.p2.y, .z = edge.p2.x};
-    C = (point_t) {.x = prism_corner.z, .y = prism_corner.y, .z = prism_corner.z};
-    if (checkTwoFaces(A, B, C)) return true;
-
-    return false;
+// Return true if edge intersects given grid, else false
+bool segmentIntersectsGrid(edge_t edge, point_t grid) {
+    float x_delta = splitDist(edge.p1.x, edge.p2.x);
+    float y_delta = splitDist(edge.p1.y, edge.p2.y);
+    float z_delta = splitDist(edge.p1.z, edge.p2.z);
+    
+    bool collision = false;
+    for (int i=0; i<=SEGMENTS; i++) {
+        if (pointInGrid(
+            (point_t) {
+                .x = edge.p1.x + x_delta * i,
+                .y = edge.p1.y + y_delta * i,
+                .z = edge.p1.z + z_delta * i,
+            }, grid)) collision = true;
+    }
+    return collision;
 }
 
 bool edgeCollision(edge_t edge, space_t *space) {
@@ -240,8 +184,6 @@ bool edgeCollision(edge_t edge, space_t *space) {
     // max_y=YDIM;
     // max_z=ZDIM;
 
-
-
     for (int i=min_x; i <= max_x; i++) {
         for (int j=min_y; j<=max_y; j++) {
             for (int k=min_z; k<=max_z; k++) {
@@ -250,7 +192,7 @@ bool edgeCollision(edge_t edge, space_t *space) {
                     // Set up corner of grid
                     point_t v = (point_t) {.x = i, .y = j, .z = k};
                     // Check if edge intersects with grid
-                    if (lineIntersectsPrism(edge, v)) return true;
+                    if (segmentIntersectsGrid(edge, v)) return true;
                 }
             }
         }

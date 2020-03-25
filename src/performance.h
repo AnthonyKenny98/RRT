@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 // Number of times RRT is run
-#define NUM_EXPERIMENTS 100
+#define NUM_EXPERIMENTS 1
 
 // Define number of performance counters
 #define NUM_CLKS 7
