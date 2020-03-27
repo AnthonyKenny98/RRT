@@ -4,7 +4,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-02 09:44:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-03-27 14:16:12
+# @Last Modified time: 2020-03-27 14:31:02
 
 import csv
 import json
@@ -52,11 +52,6 @@ FUNCTIONS = [
     'edgeCollisions'
 ]
 
-# Testing Methods (vtune added if selected in main)
-METHODS = [
-    'performance'
-]
-
 COLORS = ['#999999', '#4285F4', '#34A853', '#FBBC05', '#EA4335']
 
 
@@ -76,7 +71,7 @@ def choose_test_batch():
         print('{}: {}'.format(i, test_folders[i].name))
 
     # Seek input for which test batch to run
-    index = input("Enter Test Batch")
+    index = input("Enter Test Batch ")
     while not index.isdigit() or not 0 <= int(index) < len(test_folders):
         index = input("Try again: ")
 
@@ -160,56 +155,13 @@ def run_rrt(test_name):
     call(command)
 
 
-def collect_hotspots(test_name):
-    """Run Vtune Collect Hotspots function."""
-    print("    Collecting Hotspots")
-    # Find this path's parent directory
-    path = Path(DIR_PATH)
-
-    # Specify Result Directory Name
-    result_dir = batch_path + '/results/' + test_name
-
-    # Specify Log file path
-    log_path = '{}/logs/{}.out'.format(batch_path, test_name)
-    # Command to execute bash script
-    command = 'cd {}; ./collectHotspots.bash {} {} > {} 2>&1;'.format(
-        DIR_PATH, path.parent, result_dir, log_path)
-    # Execute command
-    call(command)
-
-
-def topdown_report(test_name):
-    """Run Vtune Top-Down Report."""
-    print("    Running TopDown Report")
-    path = Path(DIR_PATH)
-
-    # Specify Result Directory Name
-    result_dir = batch_path + '/results/' + test_name
-
-    # Specify Report Directory Name
-    report_dir = batch_path + '/reports/' + test_name + '/vtune'
-
-    # Specify Log file path
-    log_path = '{}/logs/{}.out'.format(batch_path, test_name)
-
-    # Command to execute bash script
-    command = 'cd {}; ./topDownReport.bash {} {} {} >> {} 2>&1;'.format(
-        DIR_PATH, path.parent, result_dir, report_dir, log_path)
-    # Execute command
-    call(command)
-
-
-def run_tests(run_vtune, tests):
+def run_tests(tests):
     """Setup all tests and collect hotspot analysis."""
     # Iterate through tests
     for test in tests:
         print("Running Test {}: {}".format(test['TESTNUM'], test['NAME']))
         setup_test(test)
-        if run_vtune:
-            collect_hotspots(test['NAME'])
-            topdown_report(test['NAME'])
-        else:
-            run_rrt(test['NAME'])
+        run_rrt(test['NAME'])
         copy_cache(test['NAME'])
         graph_rrt(batch_path + '/reports/' + test['NAME'] + '/RRT.png')
 
@@ -239,31 +191,29 @@ def compile_report_data(tests):
         # ================
 
         # Init Results Dict for test
-        test['results'] = {f: {x: 0. for x in METHODS} for f in ALLFUNCTIONS}
+        test['results'] = {f: 0. for f in ALLFUNCTIONS}
 
         # Path to Tests report folder
         reports_path = batch_path + '/reports/' + test['NAME']
 
         # Iterate through each method of collecting data
-        for m in METHODS:
-            report_path = reports_path + '/' + m + '.csv'
+        report_path = reports_path + '/performance.csv'
 
-            # Read relevant data from report file
-            with open(report_path) as r:
-                reader = list(csv.DictReader(r))
-                for row in json.loads(json.dumps(reader)):
-                    func = row['Function Stack'].strip()
-                    if func in ALLFUNCTIONS:
-                        test['results'][func][m] = float(row["CPU Time:Self"])
+        # Read relevant data from report file
+        with open(report_path) as r:
+            reader = list(csv.DictReader(r))
+            for row in json.loads(json.dumps(reader)):
+                func = row['Function Stack'].strip()
+                if func in ALLFUNCTIONS:
+                    test['results'][func] = float(row["CPU Time:Self"])
 
     # Organise data into x and y(series)
     xname = 'NUM_CONFIGS'
-    data = {m: {} for m in METHODS}
-    for m in METHODS:
-        data[m]['x'] = [test[xname] for test in tests]
-        data[m]['ys'] = {
-            function: [test['results'][function][m] for test in tests]
-            for function in FUNCTIONS}
+    data = {}
+    data['x'] = [test[xname] for test in tests]
+    data['ys'] = {
+        function: [test['results'][function] for test in tests]
+        for function in FUNCTIONS}
     return data, tests
 
 
@@ -274,32 +224,31 @@ def normalise(lst, denoms):
 
 def graph_reports(data):
     """Save graphs of data."""
-    for method in METHODS:
-        x = data[method]['x']
-        ys = data[method]['ys']
+    x = data['x']
+    ys = data['ys']
 
-        plt.figure(figsize=(15, 10), frameon=False)
-        plt.title("RRT Performance Breakdown")
-        plt.xlabel("Number of Nodes in Graph")
-        plt.ylabel("% of CPU Time")
-        plt.grid(color='gray', axis='y')
+    plt.figure(figsize=(15, 10), frameon=False)
+    plt.title("RRT Performance Breakdown")
+    plt.xlabel("Number of Nodes in Graph")
+    plt.ylabel("% of CPU Time")
+    plt.grid(color='gray', axis='y')
 
-        # Normalise values (weight by percentage of total time)
-        ys_vals = list(ys.values())
-        denoms = np.zeros(len(ys_vals[0]))
-        for i in range(len(ys_vals)):
-            for j in range(len(ys_vals[i])):
-                denoms[j] += ys_vals[i][j]
+    # Normalise values (weight by percentage of total time)
+    ys_vals = list(ys.values())
+    denoms = np.zeros(len(ys_vals[0]))
+    for i in range(len(ys_vals)):
+        for j in range(len(ys_vals[i])):
+            denoms[j] += ys_vals[i][j]
 
-        weighted_ys = []
-        for i in range(len(ys_vals)):
-            weighted_ys.append(normalise(ys_vals[i], denoms))
+    weighted_ys = []
+    for i in range(len(ys_vals)):
+        weighted_ys.append(normalise(ys_vals[i], denoms))
 
-        plt.stackplot(x, weighted_ys,
-                      colors=COLORS,
-                      labels=ys.keys())
-        plt.legend()
-        plt.savefig(batch_path + "/graphs/" + method)
+    plt.stackplot(x, weighted_ys,
+                  colors=COLORS,
+                  labels=ys.keys())
+    plt.legend()
+    plt.savefig(batch_path + "/graphs/performance")
 
 
 def compile_success_rates(tests):
@@ -313,23 +262,18 @@ def compile_success_rates(tests):
         for row in reader:
             with open(batch_path + '/reports/' +
                       row[2] + '/cache/success.txt') as s:
-                writer.writerow(list(row) + [s.read()] + [tests[int(row[0])]['results']['rrt']['performance']])
+                writer.writerow(list(row) + [s.read()] +
+                                [tests[int(row[0])]['results']['rrt']])
 
 
 if __name__ == '__main__':
-
-    # Determine whether to run vtune or just internal performance
-    run_vtune = False
-    if run_vtune:
-        print("WARNING: Have you remembered to set ptrace_scope = 0?")
-        METHODS.append('vtune')
-
     # Choose Test Batch and save result to global variable
     choose_test_batch()
 
     tests = get_tests()
     if setup_test_batch():
-        run_tests(run_vtune, tests)
+        run_tests(tests)
+
     data, tests = compile_report_data(tests)
     graph_reports(data)
     compile_success_rates(tests)

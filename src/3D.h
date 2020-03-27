@@ -168,16 +168,14 @@ bool pointOnFace(point_t p, point_t grid) {
     );
 }
 
-bool segmentIntersectsFace(edge_t edge, point_t face) {
-    // Setup 3 points on the associated plane
+point_t lineIntersectsPlane(edge_t edge, float plane) {
+    // Setup 3 points on the plane
     point_t P, Q, R;
-    P = face;
-    Q = face;
-    Q.x+=RESOLUTION;
-    R = face;
-    R.y+=RESOLUTION;
+    P = (point_t) {.x=0, .y=0, .z=plane};
+    Q = (point_t) {.x=RESOLUTION, .y=0, .z=plane};
+    R = (point_t) {.x=0, .y=RESOLUTION, .z=plane};
 
-    // Get vectors defining plane
+     // Get vectors defining plane
     vector_t PQ = vector(P, Q);
     vector_t PR = vector(P, R);
 
@@ -192,59 +190,8 @@ bool segmentIntersectsFace(edge_t edge, point_t face) {
 
     // Point of intersection
     point_t POI = pointOfIntersection(T, edge);
-    // printf("        POI = (%f,%f, %f)\n", POI.x, POI.y, POI.z);
 
-    // Check if point is within bounds of edge
-    bool pointOnEdge = pointOnSegment(POI, edge);
-    // printf("        Point on segment = %d\n", pointOnEdge);
-
-    // Check if point is within bounds of face
-    bool pointOnface = pointOnFace(POI, P);
-    // printf("        point on face = %d\n", pointOnface);
-    // printf("    segmentIntersectsFace= %d\n", (pointOnEdge && pointOnface));
-
-    return pointOnEdge && pointOnface;
-}
-
-bool segmentIntersectsGrid(edge_t edge, point_t grid) {
-    bool segmentIntersectsAnyFace = (
-        // Z Plane
-        segmentIntersectsFace(edge, grid) ||
-        segmentIntersectsFace(edge, 
-            (point_t) {.x=grid.x, .y=grid.y, .z=grid.z+RESOLUTION}) ||
-        
-        // Y Plane
-        segmentIntersectsFace(//edge,
-            (edge_t) {
-                .p1=(point_t) {.x=edge.p1.x, .y=edge.p1.z, .z=edge.p1.y},
-                .p2=(point_t) {.x=edge.p2.x, .y=edge.p2.z, .z=edge.p2.y},
-            }, 
-            (point_t) {.x=grid.x, .y=grid.z, .z=grid.y}) ||
-        segmentIntersectsFace(//edge,
-            (edge_t) {
-                .p1=(point_t) {.x=edge.p1.x, .y=edge.p1.z, .z=edge.p1.y},
-                .p2=(point_t) {.x=edge.p2.x, .y=edge.p2.z, .z=edge.p2.y},
-            }, 
-            (point_t) {.x=grid.x, .y=grid.z, .z=grid.y+RESOLUTION}) ||
-
-        // X Plane
-        segmentIntersectsFace(//edge,
-            (edge_t) {
-                .p1=(point_t) {.x=edge.p1.z, .y=edge.p1.y, .z=edge.p1.x},
-                .p2=(point_t) {.x=edge.p2.z, .y=edge.p2.y, .z=edge.p2.x},
-            }, 
-            (point_t) {.x=grid.z, .y=grid.y, .z=grid.x}) ||
-        segmentIntersectsFace(//edge,
-            (edge_t) {
-                .p1=(point_t) {.x=edge.p1.z, .y=edge.p1.y, .z=edge.p1.x},
-                .p2=(point_t) {.x=edge.p2.z, .y=edge.p2.y, .z=edge.p2.x},
-            }, 
-            (point_t) {.x=grid.z, .y=grid.y, .z=grid.x+RESOLUTION})
-    );
-    bool bothEndPointsInGrid = (
-        pointInGrid(edge.p1, grid) && pointInGrid(edge.p2, grid)
-    );
-    return segmentIntersectsAnyFace || bothEndPointsInGrid;
+    return POI;
 }
 
 bool edgeCollision(edge_t edge, space_t *space) {
@@ -291,20 +238,51 @@ bool edgeCollision(edge_t edge, space_t *space) {
     // max_y=YDIM;
     // max_z=ZDIM;
 
-    for (int i=min_x; i <= max_x; i++) {
-        for (int j=min_y; j<=max_y; j++) {
-            for (int k=min_z; k<=max_z; k++) {
-                if (space->ogm[i][j][k]) {
+    bool collision;
 
-                    // Set up corner of grid
-                    point_t v = (point_t) {.x = i, .y = j, .z = k};
-                    // Check if edge intersects with grid
-                    if (segmentIntersectsGrid(edge, v)) return true;
-                }
+    point_t POI;
+    for (int z=min_z; z<max_z; z++) {
+        POI = lineIntersectsPlane(edge, z);
+        if (pointOnSegment(POI, edge)) {
+            if (space->ogm[(int) POI.x][(int) POI.y][z]) collision = true; 
+            if (z > 0) {
+                if (space->ogm[(int) POI.x][(int) POI.y][z-1]) collision = true;
             }
         }
     }
-    return false;
+
+    edge_t newedge = (edge_t) {
+        .p1=(point_t) {.x=edge.p1.x, .y=edge.p1.z, .z=edge.p1.y},
+        .p2=(point_t) {.x=edge.p2.x, .y=edge.p2.z, .z=edge.p2.y}
+    };
+    for (int y=min_y; y<max_y; y++) {
+        POI = lineIntersectsPlane(newedge, y);
+        POI = (point_t) {.x=POI.x, .y=POI.z, .z=POI.y};
+
+        if (pointOnSegment(POI, edge)) {
+            if (space->ogm[(int) POI.x][y][(int) POI.z]) collision = true; 
+            if (y > 0) {
+                if (space->ogm[(int) POI.x][y-1][(int) POI.z]) collision = true;
+            }
+        }
+    }
+
+    newedge = (edge_t) {
+        .p1=(point_t) {.x=edge.p1.z, .y=edge.p1.y, .z=edge.p1.x},
+        .p2=(point_t) {.x=edge.p2.z, .y=edge.p2.y, .z=edge.p2.x}
+    };
+    for (int x=min_x; x<max_x; x++) {
+        POI = lineIntersectsPlane(newedge, x);
+        POI = (point_t) {.x=POI.z, .y=POI.y, .z=POI.x};
+
+        if (pointOnSegment(POI, edge)) {
+            if (space->ogm[x][(int) POI.y][(int) POI.z]) collision = true; 
+            if (x > 0) {
+                if (space->ogm[x-1][(int) POI.y][(int) POI.z]) collision = true;
+            }
+        }
+    }
+    return collision;
 }
 
 point_t getStartPoint() {return getRandomPoint();}
