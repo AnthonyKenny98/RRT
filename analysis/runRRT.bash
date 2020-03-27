@@ -11,7 +11,7 @@ echo
 # Run VTune Hotspots Analysis
 echo "Running RRT"
 cd src
-./rrt3D
+./rrt2D
 cd $1
 
 # Clean Up

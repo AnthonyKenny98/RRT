@@ -70,6 +70,14 @@ config_t getRandomConfig() {
     return getNewConfig(getRandomPoint());
 }
 
+config_t getStartConfig() {
+    return getNewConfig(getStartPoint());
+}
+
+config_t getGoalConfig() {
+    return getNewConfig(getGoalPoint());
+}
+
 // Test if any of a configuration's vertices collide with an object.
 // Currently only works if object is smaller than 1 grid
 bool configCollision(config_t config, space_t *space) {
