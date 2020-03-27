@@ -2,7 +2,7 @@
 * @Author: AnthonyKenny98
 * @Date:   2019-10-31 11:57:52
 * @Last Modified by:   AnthonyKenny98
-* @Last Modified time: 2020-03-24 15:44:11
+* @Last Modified time: 2020-03-27 13:19:30
 */
 
 #include "rrt.h"
@@ -145,8 +145,8 @@ int main(int argc, char *argv[]) {
     for (int e=0; e<NUM_EXPERIMENTS; e++) {
 
         // New start and End Point
-        do { startConfig = getRandomConfig(); } while (configCollision(startConfig, space));
-        do { goalConfig = getRandomConfig(); } while (
+        do { startConfig = getStartConfig(); } while (configCollision(startConfig, space));
+        do { goalConfig = getGoalConfig(); } while (
             (configCollision(goalConfig, space)) && (config_distance_squared(goalConfig, startConfig) > XDIM/2)
         );
         

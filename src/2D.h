@@ -108,8 +108,39 @@ bool LineIntersectsLine(edge_t e1, edge_t e2) {
 }
 
 bool edgeCollision(edge_t edge, space_t *space) {
-    for (int i=0; i<XDIM/RESOLUTION; i++) {
-        for (int j=0; j<YDIM/RESOLUTION; j++) {
+    
+    int min_x, max_x, min_y, max_y;
+    
+    // Get min_p and max_p x
+    if (edge.p1.x < edge.p2.x) {
+        min_x = grid_lookup(edge.p1.x);
+    } else {
+        min_x = grid_lookup(edge.p2.x);
+    }
+    // Get min_p and max_p y
+    if (edge.p1.y < edge.p2.y) {
+        min_y = grid_lookup(edge.p1.y);
+    } else {
+        min_y = grid_lookup(edge.p2.y);
+    }
+
+    if (XDIM - EPSILON < min_x) {
+        min_x = XDIM-EPSILON;
+    }
+    if (YDIM - EPSILON < min_y) {
+        min_y = YDIM-EPSILON;
+    }
+
+    max_x=min_x+EPSILON;
+    max_y=min_y+EPSILON;
+
+    // min_x = 0;
+    // min_y=0;
+    // max_x=XDIM;
+    // max_y=YDIM;
+
+    for (int i=min_x; i<max_x; i++) {
+        for (int j=min_y; j<max_y; j++) {
             if (space->ogm[i][j]) {
 
                 // Set up edges of grid
@@ -133,3 +164,8 @@ bool edgeCollision(edge_t edge, space_t *space) {
 void fprint_point(FILE* f, point_t p) {
     fprintf(f, "%f, %f", p.x, p.y);
 }
+
+// point_t getStartPoint() {return (point_t) {.x = 1., .y = 1.};}
+point_t getStartPoint() {return getRandomPoint();}
+// point_t getGoalPoint() {return (point_t) {.x = 14., .y=14.};}
+point_t getGoalPoint() {return getRandomPoint();}

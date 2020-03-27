@@ -4,7 +4,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-02 09:44:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-03-24 15:47:27
+# @Last Modified time: 2020-03-27 14:31:02
 
 import csv
 import json
@@ -18,13 +18,15 @@ import subprocess
 
 # Path in project of this file
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
+
 # Path for all test folders
 TEST_PATH = DIR_PATH + '/tests'
+
 # Path for test batch - updated in choose_test_batch()
 batch_path = ''
 
 # Required files and folders for each test batch
-REQUIRED_FILES = ['template.txt', 'tests.csv']
+REQUIRED_FILES = ['tests.csv']
 REQUIRED_FOLDERS = ['results', 'logs', 'reports', 'graphs']
 
 # Parameters for params.h
@@ -32,6 +34,15 @@ PARAMS = ['XDIM', 'YDIM', 'ZDIM',
           'EPSILON', 'NUM_CONFIGS', 'RESOLUTION', 'GOAL_BIAS']
 
 # Functions that we want to measure
+ALLFUNCTIONS = [
+    # 'benchmark',
+    'rrt',
+    'getRandomConfig',
+    'findNearestConfig',
+    'stepFromTo',
+    'configCollisions',
+    'edgeCollisions'
+]
 FUNCTIONS = [
     # 'benchmark',
     'getRandomConfig',
@@ -39,12 +50,6 @@ FUNCTIONS = [
     'stepFromTo',
     'configCollisions',
     'edgeCollisions'
-]
-
-# Testing Methods (vtune added if selected in main)
-METHODS = [
-    # 'vtune',
-    'performance'
 ]
 
 COLORS = ['#999999', '#4285F4', '#34A853', '#FBBC05', '#EA4335']
@@ -57,17 +62,18 @@ def call(command):
 
 def choose_test_batch():
     """Choose with test batch under analysis/tests/ to run."""
-    # List all test folders
+    # List of test folders
     test_folders = [f for f in os.scandir(TEST_PATH) if f.is_dir()]
 
-    # Seek input for which test batch to run
+    # Print test folders
     print("Available Test Folders\n=================")
     for i in range(len(test_folders)):
         print('{}: {}'.format(i, test_folders[i].name))
-    index = input("Enter the index number of the test batch "
-                  "you would like to run: ")
+
+    # Seek input for which test batch to run
+    index = input("Enter Test Batch ")
     while not index.isdigit() or not 0 <= int(index) < len(test_folders):
-        index = input("Index must be a valid integer. Try again: ")
+        index = input("Try again: ")
 
     # Update global variable
     global batch_path
@@ -83,12 +89,7 @@ def get_tests():
 
 
 def setup_test_batch():
-    """Setup test batch folder for running tests.
-
-    + Check for required files
-    + Check if test batch has previously been run
-    + Setup required directory structure.
-    """
+    """Setup test batch folder for running tests."""
     # Check for existence of required files
     dir_contents = os.listdir(batch_path)
     for file in REQUIRED_FILES:
@@ -130,10 +131,10 @@ def setup_test(test):
             f.write(line)
 
     # Setup OGM file
-    with open(batch_path + '/template.txt', 'r') as f:
-        template = f.read()
-        call("cd {}; python3 src/setup.py {} >/dev/null 2>/dev/null;".format(
-             str(Path(DIR_PATH).parent), template))
+    # with open(batch_path + '/template.txt', 'r') as f:
+    template = test['TEMPLATE']
+    call("cd {}; python3 src/setup.py {} >/dev/null 2>/dev/null;".format(
+         str(Path(DIR_PATH).parent), template))
 
 
 def run_rrt(test_name):
@@ -154,56 +155,13 @@ def run_rrt(test_name):
     call(command)
 
 
-def collect_hotspots(test_name):
-    """Run Vtune Collect Hotspots function."""
-    print("    Collecting Hotspots")
-    # Find this path's parent directory
-    path = Path(DIR_PATH)
-
-    # Specify Result Directory Name
-    result_dir = batch_path + '/results/' + test_name
-
-    # Specify Log file path
-    log_path = '{}/logs/{}.out'.format(batch_path, test_name)
-    # Command to execute bash script
-    command = 'cd {}; ./collectHotspots.bash {} {} > {} 2>&1;'.format(
-        DIR_PATH, path.parent, result_dir, log_path)
-    # Execute command
-    call(command)
-
-
-def topdown_report(test_name):
-    """Run Vtune Top-Down Report."""
-    print("    Running TopDown Report")
-    path = Path(DIR_PATH)
-
-    # Specify Result Directory Name
-    result_dir = batch_path + '/results/' + test_name
-
-    # Specify Report Directory Name
-    report_dir = batch_path + '/reports/' + test_name + '/vtune'
-
-    # Specify Log file path
-    log_path = '{}/logs/{}.out'.format(batch_path, test_name)
-
-    # Command to execute bash script
-    command = 'cd {}; ./topDownReport.bash {} {} {} >> {} 2>&1;'.format(
-        DIR_PATH, path.parent, result_dir, report_dir, log_path)
-    # Execute command
-    call(command)
-
-
-def run_tests(run_vtune):
+def run_tests(tests):
     """Setup all tests and collect hotspot analysis."""
     # Iterate through tests
-    for test in get_tests():
+    for test in tests:
         print("Running Test {}: {}".format(test['TESTNUM'], test['NAME']))
         setup_test(test)
-        if run_vtune:
-            collect_hotspots(test['NAME'])
-            topdown_report(test['NAME'])
-        else:
-            run_rrt(test['NAME'])
+        run_rrt(test['NAME'])
         copy_cache(test['NAME'])
         graph_rrt(batch_path + '/reports/' + test['NAME'] + '/RRT.png')
 
@@ -225,41 +183,38 @@ def graph_rrt(path):
         str(Path(DIR_PATH).parent), path))
 
 
-def compile_report_data():
+def compile_report_data(tests):
     """Compile Data from reports of all tests."""
-    tests = get_tests()
     for test in tests:
 
         # PERFORMANCE DATA
         # ================
 
         # Init Results Dict for test
-        test['results'] = {f: {x: 0. for x in METHODS} for f in FUNCTIONS}
+        test['results'] = {f: 0. for f in ALLFUNCTIONS}
 
         # Path to Tests report folder
         reports_path = batch_path + '/reports/' + test['NAME']
 
         # Iterate through each method of collecting data
-        for m in METHODS:
-            report_path = reports_path + '/' + m + '.csv'
+        report_path = reports_path + '/performance.csv'
 
-            # Read relevant data from report file
-            with open(report_path) as r:
-                reader = list(csv.DictReader(r))
-                for row in json.loads(json.dumps(reader)):
-                    func = row['Function Stack'].strip()
-                    if func in FUNCTIONS:
-                        test['results'][func][m] = float(row["CPU Time:Self"])
+        # Read relevant data from report file
+        with open(report_path) as r:
+            reader = list(csv.DictReader(r))
+            for row in json.loads(json.dumps(reader)):
+                func = row['Function Stack'].strip()
+                if func in ALLFUNCTIONS:
+                    test['results'][func] = float(row["CPU Time:Self"])
 
     # Organise data into x and y(series)
     xname = 'NUM_CONFIGS'
-    data = {m: {} for m in METHODS}
-    for m in METHODS:
-        data[m]['x'] = [test[xname] for test in tests]
-        data[m]['ys'] = {
-            function: [test['results'][function][m] for test in tests]
-            for function in FUNCTIONS}
-    return data
+    data = {}
+    data['x'] = [test[xname] for test in tests]
+    data['ys'] = {
+        function: [test['results'][function] for test in tests]
+        for function in FUNCTIONS}
+    return data, tests
 
 
 def normalise(lst, denoms):
@@ -269,55 +224,56 @@ def normalise(lst, denoms):
 
 def graph_reports(data):
     """Save graphs of data."""
-    for method in METHODS:
-        x = data[method]['x']
-        ys = data[method]['ys']
+    x = data['x']
+    ys = data['ys']
 
-        plt.figure(figsize=(15, 10), frameon=False)
-        plt.title("RRT Performance Breakdown")
-        plt.xlabel("Number of Nodes in Graph")
-        plt.ylabel("% of CPU Time")
-        plt.grid(color='gray', axis='y')
+    plt.figure(figsize=(15, 10), frameon=False)
+    plt.title("RRT Performance Breakdown")
+    plt.xlabel("Number of Nodes in Graph")
+    plt.ylabel("% of CPU Time")
+    plt.grid(color='gray', axis='y')
 
-        # Normalise values (weight by percentage of total time)
-        ys_vals = list(ys.values())
-        denoms = np.zeros(len(ys_vals[0]))
-        for i in range(len(ys_vals)):
-            for j in range(len(ys_vals[i])):
-                denoms[j] += ys_vals[i][j]
+    # Normalise values (weight by percentage of total time)
+    ys_vals = list(ys.values())
+    denoms = np.zeros(len(ys_vals[0]))
+    for i in range(len(ys_vals)):
+        for j in range(len(ys_vals[i])):
+            denoms[j] += ys_vals[i][j]
 
-        weighted_ys = []
-        for i in range(len(ys_vals)):
-            weighted_ys.append(normalise(ys_vals[i], denoms))
+    weighted_ys = []
+    for i in range(len(ys_vals)):
+        weighted_ys.append(normalise(ys_vals[i], denoms))
 
-        plt.stackplot(x, weighted_ys,
-                      colors=COLORS,
-                      labels=ys.keys())
-        plt.legend()
-        plt.savefig(batch_path + "/graphs/" + method)
+    plt.stackplot(x, weighted_ys,
+                  colors=COLORS,
+                  labels=ys.keys())
+    plt.legend()
+    plt.savefig(batch_path + "/graphs/performance")
 
 
-def compile_success_rates():
+def compile_success_rates(tests):
     """Compile success rates of each test into csv."""
     outfile = open(batch_path + '/success_rate.csv', 'w')
     writer = csv.writer(outfile)
 
     with open(batch_path + '/tests.csv') as f:
         reader = csv.reader(f)
-        writer.writerow(next(reader) + ['SUCCESS_RATE'])
+        writer.writerow(next(reader) + ['SUCCESS_RATE'] + ['AVG_CPU_TIME'])
         for row in reader:
-            with open(batch_path + '/reports/' + row[2] + '/cache/success.txt') as s:
-                writer.writerow(list(row) + [s.read()])
+            with open(batch_path + '/reports/' +
+                      row[2] + '/cache/success.txt') as s:
+                writer.writerow(list(row) + [s.read()] +
+                                [tests[int(row[0])]['results']['rrt']])
 
 
 if __name__ == '__main__':
-    print("WARNING: Have you remembered to set ptrace_scope = 0?")
-    run_vtune = (input("Would you like to run Vtune? Must enter 'y': ") == 'y')
-    if run_vtune:
-        METHODS.append('vtune')
+    # Choose Test Batch and save result to global variable
     choose_test_batch()
+
+    tests = get_tests()
     if setup_test_batch():
-        run_tests(run_vtune)
-    data = compile_report_data()
+        run_tests(tests)
+
+    data, tests = compile_report_data(tests)
     graph_reports(data)
-    compile_success_rates()
+    compile_success_rates(tests)
