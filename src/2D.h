@@ -86,18 +86,18 @@ point_t stepTowardsPoint(point_t p1, point_t p2) {
 }
 
 bool LineIntersectsLine(edge_t e1, edge_t e2) {
-    double q = (e1.p1.y - e2.p1.y) * (e2.p2.x - e2.p1.x) - (e1.p1.x - e2.p1.x) * (e2.p2.y - e2.p1.y);
-    double d = (e1.p2.x - e1.p1.x) * (e2.p2.y - e2.p1.y) - (e1.p2.y - e1.p1.y) * (e2.p2.x - e2.p1.x);
+    float q = (e1.p1.y - e2.p1.y) * (e2.p2.x - e2.p1.x) - (e1.p1.x - e2.p1.x) * (e2.p2.y - e2.p1.y);
+    float d = (e1.p2.x - e1.p1.x) * (e2.p2.y - e2.p1.y) - (e1.p2.y - e1.p1.y) * (e2.p2.x - e2.p1.x);
 
     if( d == 0 )
     {
         return false;
     }
 
-    double r = q / d;
+    float r = q / d;
 
     q = (e1.p1.y - e2.p1.y) * (e1.p2.x - e1.p1.x) - (e1.p1.x - e2.p1.x) * (e1.p2.y - e1.p1.y);
-    double s = q / d;
+    float s = q / d;
 
     if( r < 0 || r > 1 || s < 0 || s > 1 )
     {
