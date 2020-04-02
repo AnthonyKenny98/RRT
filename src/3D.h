@@ -286,7 +286,9 @@ bool edgeCollision(edge_t edge, space_t *space) {
 }
 
 point_t getStartPoint() {return getRandomPoint();}
+// point_t getStartPoint() {return (point_t) {.x = XDIM/2, .y = YDIM/2, .z = 14.};}
 point_t getGoalPoint() {return getRandomPoint();}
+// point_t getGoalPoint() {return (point_t) {.x = 10.5, .y = 10.5, .z = 10.};}
 
 void fprint_point(FILE* f, point_t p) {
     fprintf(f, "%f, %f, %f", p.x, p.y, p.z);
