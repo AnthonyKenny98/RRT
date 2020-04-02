@@ -17,7 +17,7 @@ RRT is an algorithm designed to efficiently search, and thus plan a path through
 
 Put simply, RRT builds a tree (referred to as a graph) of possible configurations, connected by edges, for a robot of some physical description. It does so by randomly sampling the configuration space and adding configurations to the graph. From this graph, a path from the initial configuration to some goal configuration can be found, given a high enough number of iterations. The algorithm can be seen below (taken from [Thesis writeup](https://github.com/AnthonyKenny98/Thesis/blob/master/Writeups/4_Report/obj/report.pdf))
 
-![RRT Algorithm](doc/algorithm)
+![RRT Algorithm](doc/algorithm.png)
 
 
 ## <a name=license></a>License
