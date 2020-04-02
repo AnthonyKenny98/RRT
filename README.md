@@ -22,3 +22,4 @@ Put simply, RRT builds a tree (referred to as a graph) of possible configuration
 
 ## <a name=license></a>License
 
+This project is licensed under the MIT License. See the LICENSE file for more information.
