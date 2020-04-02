@@ -1,4 +1,4 @@
-# Rapidly-Exploring Radom Tree :earth_asia:
+# Rapidly-Exploring Random Tree :earth_asia:
 > 2D and 3D Implementation of RRT 
 
 This repository holds a C implementation of Rapidly-Exploring Random Tree, built as the function of interest in my [Senior Thesis](https://github.com/AnthonyKenny98/Thesis). It has a 3D and 2D implementation and has functionality for analysis of performance.
@@ -22,3 +22,4 @@ Put simply, RRT builds a tree (referred to as a graph) of possible configuration
 
 ## <a name=license></a>License
 
+This project is licensed under the MIT License. See the LICENSE file for more information.
