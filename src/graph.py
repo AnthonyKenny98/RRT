@@ -3,7 +3,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-05 20:46:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-04-05 21:09:24
+# @Last Modified time: 2020-04-05 21:11:48
 
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
@@ -217,8 +217,8 @@ def plot(num_edges):
         # Labels for minor ticks
         minor_tick_labels = np.arange(
             0, params['DIM'] + 1, int(params['DIM'] / 4))
-        ax.set_xticklabels(minor_tick_labels, minor=True)
-        ax.set_yticklabels(minor_tick_labels, minor=True)
+        ax.set_xticklabels(minor_tick_labels, minor=True, fontsize=14)
+        ax.set_yticklabels(minor_tick_labels, minor=True, fontsize=14)
 
     # Axis Labels
     # ax.set_xlabel('X Axis')
