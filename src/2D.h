@@ -165,7 +165,7 @@ void fprint_point(FILE* f, point_t p) {
     fprintf(f, "%f, %f", p.x, p.y);
 }
 
-// point_t getStartPoint() {return (point_t) {.x = 0.5, .y = 1.};}
-point_t getStartPoint() {return getRandomPoint();}
-// point_t getGoalPoint() {return (point_t) {.x = 12.5, .y=12.5};}
-point_t getGoalPoint() {return getRandomPoint();}
+point_t getStartPoint() {return (point_t) {.x = 0.5, .y = 1.};}
+// point_t getStartPoint() {return getRandomPoint();}
+point_t getGoalPoint() {return (point_t) {.x = 13.5, .y=12.5};}
+// point_t getGoalPoint() {return getRandomPoint();}

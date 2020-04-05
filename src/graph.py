@@ -3,7 +3,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-05 20:46:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-03-31 09:42:26
+# @Last Modified time: 2020-04-05 21:09:24
 
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
@@ -112,14 +112,14 @@ def plot_ogm(ax, ogm):
                   origin='lower')
 
 
-def plot_point(ax, point, color):
+def plot_point(ax, point, color, label=None):
     """Plot point."""
     if _3D:
         ax.scatter(float(point[0]), float(point[1]), float(point[2]),
-                   color=color, marker='*')
+                   color=color, marker='*', label=label)
     else:
         ax.scatter(float(point[0]), float(point[1]),
-                   color=color, marker='*', s=200, zorder=10)
+                   color=color, marker='*', s=200, zorder=10, label=label)
 
 
 def plot_graph(ax, num_edges):
@@ -151,8 +151,8 @@ def plot_graph(ax, num_edges):
 
 def write_text(plt, num_edges):
     """Write Text for Figure."""
-    height = .83 if _3D else .93
-    fontsize = 15 if _3D else 14
+    height = .93 if _3D else .93
+    fontsize = 14 if _3D else 14
     plt.figtext(.5, height, 'RRT', fontsize=24, ha='center')
     plt.figtext(
         .5, height - .04,
@@ -198,7 +198,7 @@ def plot(num_edges):
 
     if not _3D:
         # Set major ticks
-        major_ticks = np.arange(0, params['DIM'], params['RESOLUTION'])
+        major_ticks = np.arange(0.001, params['DIM'] + 1, params['RESOLUTION'])
         ax.set_xticks(major_ticks)
         ax.set_yticks(major_ticks)
 
@@ -210,7 +210,7 @@ def plot(num_edges):
         ax.grid(color='grey', linestyle='-', linewidth=0.5)
 
         # Set minor ticks for scale
-        minor_ticks = np.arange(0, params['DIM'] + 1, params['DIM'] / 4)
+        minor_ticks = np.arange(0, params['DIM'] + 1, int(params['DIM'] / 4))
         ax.set_xticks(minor_ticks, minor=True)
         ax.set_yticks(minor_ticks, minor=True)
 
@@ -221,8 +221,8 @@ def plot(num_edges):
         ax.set_yticklabels(minor_tick_labels, minor=True)
 
     # Axis Labels
-    ax.set_xlabel('X Axis')
-    ax.set_ylabel('Y Axis')
+    # ax.set_xlabel('X Axis')
+    # ax.set_ylabel('Y Axis')
     if _3D:
         ax.set_zlabel('Z Axis')
 
@@ -230,12 +230,14 @@ def plot(num_edges):
     print('Plotting Start Point')
     with open('cache/startPoint.txt', 'r') as f:
         point = list(csv.reader(f))[0]
-    plot_point(ax, point, 'green')
+    plot_point(ax, point, 'green', label='Start Point')
 
     print('Plotting Goal Point')
     with open('cache/goalPoint.txt', 'r') as f:
         point = list(csv.reader(f))[0]
-    plot_point(ax, point, colors[3])
+    plot_point(ax, point, colors[3], label='Goal Point')
+
+    ax.legend()
 
     plot_graph(ax, num_edges)
 
@@ -259,19 +261,19 @@ if __name__ == '__main__':
         point = list(csv.reader(f))[0]
     _3D = False if (len(point) == 2) else True
 
-    # k = int(sys.argv[1]) if len(sys.argv) == 2 else params['NUM_CONFIGS']
-    # plot(k)
+    k = int(sys.argv[1]) if len(sys.argv) == 2 else params['NUM_CONFIGS']
+    plot(k)
 
-    # # Save figure
-    # if len(sys.argv) != 2:
-    #     plotname = 'graph/RRTGraph.png'
-    # else:
-    #     plotname = 'graph/' + sys.argv[1] + '.png'
-    # plt.savefig(plotname)
+    # Save figure
+    if len(sys.argv) != 2:
+        plotname = 'graph/RRTGraph.png'
+    else:
+        plotname = 'graph/' + sys.argv[1] + '.png'
+    plt.savefig(plotname)
 
-    for k in range(params['NUM_CONFIGS']):
-        plot(k)
+    # for k in range(params['NUM_CONFIGS']):
+    #     plot(k)
 
-        # Save figure
-        plotname = 'graph/' + str(k) + '.png'
-        plt.savefig(plotname)
+    #     # Save figure
+    #     plotname = 'graph/' + str(k) + '.png'
+    #     plt.savefig(plotname)
