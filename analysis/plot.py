@@ -3,17 +3,17 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-03-30 06:23:57
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-03-30 10:04:59
+# @Last Modified time: 2020-04-06 12:06:51
 
 import matplotlib.pyplot as plt
 import numpy as np
 
 FIGSIZE = (15, 10)
-TITLE_FONTSIZE = 24
-SUBTITLE_FONTSIZE = 18
-LEGEND_FONTSIZE = 14
-AXIS_FONTSIZE = 18
-TICK_LABEL_FONTSIZE = 14
+TITLE_FONTSIZE = 30
+SUBTITLE_FONTSIZE = 20
+LEGEND_FONTSIZE = 16
+AXIS_FONTSIZE = 24
+TICK_LABEL_FONTSIZE = 18
 FRAMEON = True
 
 COLORS = {
@@ -38,7 +38,7 @@ class Figure():
         """Default Scatter Plot Function."""
         self.fig = plt.figure(figsize=FIGSIZE, dpi=300, frameon=FRAMEON)
         plt.figtext(.5, .94, title, fontsize=TITLE_FONTSIZE, ha='center')
-        plt.figtext(.5, .89, subtitle, fontsize=SUBTITLE_FONTSIZE, ha='center')
+        plt.figtext(.5, .90, subtitle, fontsize=SUBTITLE_FONTSIZE, ha='center')
 
         # Define Subplot
         self.ax = self.fig.add_subplot(1, 1, 1)
@@ -60,9 +60,9 @@ class Figure():
 
     def add_series(self, x, y, label):
         """Add a series to the plot."""
-        if len(self.x) is not 0 and self.x != x:
-            print("ERROR")
-            return
+        # if len(self.x) is not 0 and self.x != x:
+        #     print("ERROR")
+        #     return
         self.x = x
         self.ys.append({'data': y, 'label': label})
 

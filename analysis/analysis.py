@@ -4,7 +4,7 @@
 # @Author: AnthonyKenny98
 # @Date:   2020-01-02 09:44:51
 # @Last Modified by:   AnthonyKenny98
-# @Last Modified time: 2020-03-30 10:41:32
+# @Last Modified time: 2020-04-06 12:13:38
 
 import csv
 import json
@@ -273,10 +273,10 @@ def graph_reports(data):
     fig.plot(mode='stack')
 
     fig.set_axis_limit(y=(0, 1))
-    fig.set_axis_ticks()
+    fig.set_axis_ticks(x=x)
 
     x_tick_labels = [
-        "{}x{}x{}".format(test['XDIM'], test['XDIM'], test['XDIM'])
+        "{}".format(test['XDIM'], test['XDIM'], test['XDIM'])
         for test in tests]
     y_tick_labels = np.arange(0, 101, 10)
     fig.set_axis_tick_labels(x=x_tick_labels, y=y_tick_labels)
@@ -317,6 +317,66 @@ def plot_success_rates(tests):
         label='test')
 
     plt.show()
+
+
+# def plot_timing():
+#     """Plot Line Graph of time.
+
+#     This is fucking awful code, comment out so it doesnt break shit.
+#     """
+#     fig = Figure(
+#         title="RRT Total Execution Time",
+#         subtitle="Total Time For RRT To Complete Execution " +
+#                  "Under Optimal Parameters for Given Map Sizes",
+#         xlabel="Map Size (units)",
+#         ylabel="Total Execution Time (seconds)"
+#     )
+
+#     test_folders = [f for f in os.scandir(TEST_PATH) if f.is_dir()]
+
+#     global batch_path
+#     batch_path = test_folders[2].path
+
+#     tests = collect_results(get_tests())
+#     data = compile_data(tests)
+
+#     x = list(map(int, data['x']))
+#     ys = data['ys']
+
+#     y = np.zeros(5)
+#     for fun, times in ys.items():
+#         for i in range(len(times)):
+#             y[i] += times[i]
+
+#     fig.ax.plot(x, y, label="2D", color=COLORS[1])
+
+#     batch_path = test_folders[5].path
+
+#     tests = collect_results(get_tests())
+#     data = compile_data(tests)
+
+#     x = list(map(int, data['x']))
+#     ys = data['ys']
+
+#     y = np.zeros(5)
+#     for fun, times in ys.items():
+#         for i in range(len(times)):
+#             y[i] += times[i]
+
+#     fig.ax.plot(x, y, label="3D", color=COLORS[4])
+
+
+#     fig.set_axis_limit(x=(min(x),max(x)), y=(0, int(max(y)+1)))
+#     fig.set_axis_ticks(x=x)
+    
+#     x_tick_labels = [
+#         "{}".format(test['XDIM'], test['XDIM'], test['XDIM'])
+#         for test in tests]
+#     y_tick_labels = np.arange(0,int(max(y)+1)+1,0.5) 
+#     fig.set_axis_tick_labels(x=x_tick_labels, y=y_tick_labels)
+
+#     fig.add_legend()
+#     fig.save(batch_path + "/graphs/performance")
 
 
 if __name__ == '__main__':
